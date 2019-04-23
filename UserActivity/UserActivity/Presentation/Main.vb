@@ -4,30 +4,80 @@ Imports System.Text
 Public Class Main
     Private WithEvents kbHook As KeyboardHook
     Private WithEvents mHook As MouseHook
-    Private WithEvents wHook As WindowsHook
-    'Private thread As Threading.Thread
-    'Private Delegate Sub AddItemCallBack(ByVal item As String)
+    Private thread As Threading.Thread
+    Private lastfocus As String
+    Private Delegate Sub AddItemCallBack(ByVal item As String)
     Private focusfinal As String = ""
+    Dim IntNextClip As IntPtr
+    <DllImport("User32.dll")>
+    Protected Shared Function SetClipboardViewer(ByVal hWndNewViewer As IntPtr) As IntPtr
+    End Function
+
+    <DllImport("User32.dll")>
+    Public Shared Function ChangeClipboardChain(ByVal hWndRemove As IntPtr, ByVal hWndNewNext As IntPtr) As Boolean
+    End Function
+
+    <DllImport("user32.dll")>
+    Public Shared Function SendMessage(ByVal hwnd As IntPtr, ByVal wMsg As Integer, ByVal wParam As IntPtr, ByVal lParam As IntPtr) As Integer
+    End Function
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        focusfinal = GetPathName()
-        'Static focusMem As String
+        'IntNextClip = SetClipboardViewer(Me.Handle)
         'thread = New Threading.Thread(AddressOf window)
         'thread.Start()
         kbHook = New KeyboardHook(focusfinal)
         mHook = New MouseHook(focusfinal)
-        If mHook.HHookID = IntPtr.Zero Then
-            Throw New Exception("Could not set mouse hook")
-            mHook.Dispose()
-        ElseIf kbHook.HHookID = IntPtr.Zero Then
-            Throw New Exception("Could not set keyboard hook")
-            kbHook.Dispose()
-        End If
-        'wHook = New WindowsHook(Me)
+        'If mHook.HHookID = IntPtr.Zero Then
+        'Throw New Exception("Could not set mouse hook")
+        'mHook.Dispose()
+        'ElseIf kbHook.HHookID = IntPtr.Zero Then
+        'Throw New Exception("Could not set keyboard hook")
+        'kbHook.Dispose()
+        'End If
     End Sub
 
+    'Protected Overrides Sub WndProc(ByRef m As System.Windows.Forms.Message)
+    'Const WM_DRAWCLIPBOARD As Integer = 776
+    'Const WM_CHANGECBCHAIN As Integer = 781
+    'Select Case m.Msg
+    'Case WM_DRAWCLIPBOARD
+    '           DisplayClipboardData()
+    '          SendMessage(IntNextClip, m.Msg, m.WParam, m.LParam)
+    ' break
+    'Case WM_CHANGECBCHAIN
+    'If m.WParam = IntNextClip Then
+    '               IntNextClip = m.LParam
+    'Else
+    '               SendMessage(IntNextClip, m.Msg, m.WParam, m.LParam)
+    'End If
+    ' break
+    'Case Else
+    'MyBase.WndProc(m)
+    ' break
+    'End Select
+    'End Sub
+
+    'Sub DisplayClipboardData()
+    'Try
+    'Dim iData As New DataObject
+    '       iData = Clipboard.GetDataObject
+
+    'If iData.GetDataPresent(DataFormats.Rtf) Then
+    '           MsgBox(iData.GetData(DataFormats.Text, True).ToString())
+    'ElseIf iData.GetDataPresent(DataFormats.Text) Then
+    '           MsgBox(iData.GetData(DataFormats.Text, True).ToString())
+    'Else
+    '           MsgBox("Other data format")
+    'End If
+
+    'Catch ex As Exception
+
+    'End Try
+    'End Sub
+
+
     Private Sub btnHook_Click(sender As Object, e As EventArgs) Handles btnHook.Click
-        'kbHook = New KeyboardHook()
+        MsgBox(My.Computer.Clipboard.GetText())
     End Sub
 
     Private Sub kbHook_KeyDown(ByVal pathTitle As String, ByVal processID As Integer) Handles kbHook.KeyDown
@@ -58,39 +108,26 @@ Public Class Main
         ListBox1.TopIndex = ListBox1.Items.Count - 1
     End Sub
 
-    Private Sub wHook_WindowsOpened(ByVal processName As String, ByVal processID As Integer) Handles wHook.WindowsOpened
-        If processName.Equals("") Then
-            'Si el proceso aún no se ha registrado completamente en la lista de procesos del sistema no se imprime
-        Else
-            ListBox1.Items.Add("El usuario: " + user + " ha abierto la aplicación: " + processName + " cuyo nombre de proceso es: " + processID.ToString)
-            ListBox1.TopIndex = ListBox1.Items.Count - 1
-        End If
-    End Sub
-
-    Private Sub wHook_WindowsClosed(ByVal processName As String, ByVal processID As Integer) Handles wHook.WindowsClosed
-        ListBox1.Items.Add("El usuario: " + user + " ha cerrado la aplicación: " + processName + " cuyo nombre de proceso es: " + processID.ToString)
-        ListBox1.TopIndex = ListBox1.Items.Count - 1
-    End Sub
-
     Private Sub Form1_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         If kbHook IsNot Nothing Or mHook IsNot Nothing Then
             kbHook.Dispose()
             mHook.Dispose()
         End If
         'thread.Abort()
-        'Try
-        'wHook.StopAll()
-        'Catch ex As Exception
-        'MessageBox.Show(ex.Message)
-        'End Try
     End Sub
 
-    'Public Sub window()
-    'While True
-    '       focusfinal = GetPathName()
-    '      System.Threading.Thread.Sleep(1000)
-    'End While
-    'End Sub
+    Public Sub window()
+        While True
+            focusfinal = GetPathName()
+            If focusfinal <> lastfocus Then
+                AddItemToList(Now.ToString + "#" + "activa App: " + focusfinal + "#" + "Usuario: " + user)
+                lastfocus = focusfinal
+            Else
+
+            End If
+            System.Threading.Thread.Sleep(2000)
+        End While
+    End Sub
 
     'Path Completo'
     Private Function GetPathName()
@@ -112,11 +149,11 @@ Public Class Main
         Return wFileName
     End Function
 
-    'Public Sub AddItemToList(ByVal item As String)
-    'If Me.ListBox1.InvokeRequired Then
-    'Me.Invoke(New AddItemCallBack(AddressOf AddItemToList), item)
-    'Else
-    '       ListBox1.Items.Add(item)
-    'End If
-    'End Sub
+    Public Sub AddItemToList(ByVal item As String)
+        If Me.ListBox1.InvokeRequired Then
+            Me.Invoke(New AddItemCallBack(AddressOf AddItemToList), item)
+        Else
+            ListBox1.Items.Add(item)
+        End If
+    End Sub
 End Class

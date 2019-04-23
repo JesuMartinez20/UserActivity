@@ -76,7 +76,6 @@
   <ItemGroup>
     <Compile Include="Domain\KeyboardHook.vb" />
     <Compile Include="Domain\MouseHook.vb" />
-    <Compile Include="Domain\WindowsHook.vb" />
     <Compile Include="Modules\CommonLibraries.vb" />
     <Compile Include="Modules\Constants.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
