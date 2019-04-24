@@ -4,7 +4,7 @@ Imports System.Text
 Public Class Main
     Private WithEvents kbHook As KeyboardHook
     Private WithEvents mHook As MouseHook
-    'Private threadFocus As Threading.Thread
+    Private WithEvents fHook As FocusHook
     'Esta varibale es la encargada de controlar que el foco sea el mismo y no se repitan mismas acciones
     Private lastFocus As String
     Private Delegate Sub AddItemCallBack(ByVal item As String)
@@ -22,13 +22,16 @@ Public Class Main
     End Function
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        StartHooks()
+    End Sub
+
+    Private Sub StartHooks()
         'inicializamos'
         lastFocus = GetPathName()
-        'threadFocus = New Threading.Thread(AddressOf GetFocusInfo)
-        'threadFocus.Start()
         'IntNextClip = SetClipboardViewer(Me.Handle)
         kbHook = New KeyboardHook()
         mHook = New MouseHook()
+        fHook = New FocusHook
         If mHook.HHookID = IntPtr.Zero Then
             Throw New Exception("Could not set mouse hook")
             mHook.Dispose()
@@ -80,11 +83,12 @@ Public Class Main
     End Sub
 
     Private Sub kbHook_KeyDown(ByVal typeAction As Integer, ByVal pathTitle As String) Handles kbHook.KeyDown
-        'Comparamos que el foco actual es diferente del foco más antiguo (lastfocus)'
-        If lastFocus <> pathTitle Then
+        'De esta manera no interfiere con en el resto de eventos'
+        Static focusKey As String
+        If focusKey <> pathTitle Then
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " en App: " + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
-            lastFocus = pathTitle
+            focusKey = pathTitle
         Else
             'do nothing'
         End If
@@ -96,8 +100,24 @@ Public Class Main
     'End Sub
 
     Private Sub mHook_MouseWheel(ByVal typeAction As Integer, ByVal pathTitle As String) Handles mHook.MouseWheel
-        ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " en App: " + pathTitle + "#" + user)
-        ListBox1.TopIndex = ListBox1.Items.Count - 1
+        Static focusWheel As String
+        If focusWheel <> pathTitle Then
+            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " en App: " + pathTitle + "#" + user)
+            ListBox1.TopIndex = ListBox1.Items.Count - 1
+            focusWheel = pathTitle
+        Else
+            'do nothing'
+        End If
+    End Sub
+
+    Private Sub fHook_FocusRise(ByVal typeAction As Integer, ByVal pathTitle As String) Handles fHook.FocusRise
+        'Comparamos que el foco actual es diferente del foco más antiguo (lastfocus)'
+        If lastFocus <> pathTitle Then
+            AddItemToList(Now.ToString + "#" + typeAction.ToString + " en App: " + pathTitle + "#" + user)
+            lastFocus = pathTitle
+        Else
+            'do nothing'
+        End If
     End Sub
 
     Private Sub Form1_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
@@ -105,22 +125,9 @@ Public Class Main
             kbHook.Dispose()
             mHook.Dispose()
         End If
-        'threadFocus.Abort()
     End Sub
 
-    'Public Sub GetFocusInfo()
-    'While True
-    '       finalfocus = GetPathName()
-    'If finalfocus <> lastfocus Then
-    'Dim process As Integer = GetProcessID()
-    '           AddItemToList(Now.ToString + "#" + "activa App: " + finalfocus + "#" + "ID Proceso: " + process.ToString + "#" + "Usuario: " + user)
-    '          lastfocus = finalfocus
-    'Else
-    'do nothing'
-    'End If
-    '       System.Threading.Thread.Sleep(2000)
-    'End While
-    'End Sub
+    'Método que se encarga de capturar el control del hilo para poder modificar la lista de otro proceso'
     Public Sub AddItemToList(ByVal item As String)
         If Me.ListBox1.InvokeRequired Then
             Me.Invoke(New AddItemCallBack(AddressOf AddItemToList), item)

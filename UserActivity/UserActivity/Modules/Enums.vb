@@ -15,6 +15,6 @@
         CopyApp = 3
         PasteApp = 4
         TypeApp = 5
-        CombKeyApp = 6
+        'CombKeyApp = 6
     End Enum
 End Module
