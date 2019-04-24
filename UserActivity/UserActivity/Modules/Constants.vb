@@ -7,25 +7,16 @@
     Public Const WM_RBUTTONDOWN As Integer = &H204
     Public Const WM_MOUSEWHEEL As Integer = &H20A
     Public Const VK_LCONTROL As Integer = &HA2
+    Public Const VK_RCONTROL As Integer = &HA3
     Public Const VK_LMENU As Integer = &HA4
     Public Const VK_TAB As Integer = &H9
     Public Const VK_C As Integer = &H43
     Public Const VK_X As Integer = &H58
     Public Const VK_V As Integer = &H56
+    Public Const VK_F As Integer = &H46
+    Public Const VK_Z As Integer = &H5A
     Public Const VK_F4 As Integer = &H73
-    Public Const WM_ACTIVATE As Integer = &H6
-    Public Const WM_SETFOCUS As Integer = &H7
-    Public Const WM_DESTROY As Integer = &H2
     'Notificaciones de entrada de teclado'
     Public Const WM_KEYDOWN As Integer = &H100
     Public Const WM_SYSKEYDOWN As Integer = &H104
-    'Hook Type'
-    Public Enum HookType
-        WH_KEYBOARD_LL = 13
-        WH_MOUSE_LL = 14
-    End Enum
-    'Hook Codes'
-    Public Enum HookCodes
-        HC_ACTION = 0
-    End Enum
 End Module
