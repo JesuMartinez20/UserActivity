@@ -43,4 +43,18 @@ Module CommonMethods
         End If
         Return wTitle.ToString
     End Function
+    'Método que devuelve el foco y por lo tanto el titulo de la aplicación'
+    Public Function GetForegroundInfo2(ByVal hWnd As IntPtr)
+        Dim length As Integer
+        Dim wTitle As StringBuilder = New System.Text.StringBuilder("", 0)
+
+        If hWnd <> IntPtr.Zero Then
+            length = GetWindowTextLength(hWnd)
+            wTitle = New System.Text.StringBuilder("", length + 1)
+            If length > 0 Then
+                GetWindowText(hWnd, wTitle, wTitle.Capacity)
+            End If
+        End If
+        Return wTitle.ToString
+    End Function
 End Module

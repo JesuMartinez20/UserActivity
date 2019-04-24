@@ -19,4 +19,7 @@
     'Notificaciones de entrada de teclado'
     Public Const WM_KEYDOWN As Integer = &H100
     Public Const WM_SYSKEYDOWN As Integer = &H104
+    'Notificaciones de Clipboard'
+    Public Const WM_DRAWCLIPBOARD As Integer = 776
+    Public Const WM_CHANGECBCHAIN As Integer = 781
 End Module

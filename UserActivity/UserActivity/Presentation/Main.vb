@@ -7,8 +7,9 @@ Public Class Main
     Private WithEvents fHook As FocusHook
     'Esta varibale es la encargada de controlar que el foco sea el mismo y no se repitan mismas acciones
     Private lastFocus As String
+    'Delegado que se encarga de llamar al método de manera asíncrona'
     Private Delegate Sub AddItemCallBack(ByVal item As String)
-    Dim IntNextClip As IntPtr
+    Private nextClipViewer As IntPtr
     <DllImport("User32.dll")>
     Protected Shared Function SetClipboardViewer(ByVal hWndNewViewer As IntPtr) As IntPtr
     End Function
@@ -23,15 +24,15 @@ Public Class Main
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         StartHooks()
+        StartClipboard()
     End Sub
-
+    'Se inicializan los hooks'
     Private Sub StartHooks()
-        'inicializamos'
+        'Se inicializa el foco principal de la aplicación'
         lastFocus = GetPathName()
-        'IntNextClip = SetClipboardViewer(Me.Handle)
         kbHook = New KeyboardHook()
         mHook = New MouseHook()
-        fHook = New FocusHook
+        fHook = New FocusHook()
         If mHook.HHookID = IntPtr.Zero Then
             Throw New Exception("Could not set mouse hook")
             mHook.Dispose()
@@ -40,19 +41,22 @@ Public Class Main
             kbHook.Dispose()
         End If
     End Sub
+    'Se inicializa el clipboard'
+    Private Sub StartClipboard()
+        Clipboard.Clear()
+        nextClipViewer = SetClipboardViewer(Me.Handle)
+    End Sub
 
     Protected Overrides Sub WndProc(ByRef m As System.Windows.Forms.Message)
-        Const WM_DRAWCLIPBOARD As Integer = 776
-        Const WM_CHANGECBCHAIN As Integer = 781
         Select Case m.Msg
             Case WM_DRAWCLIPBOARD
-                DisplayClipboardData()
-                SendMessage(IntNextClip, m.Msg, m.WParam, m.LParam)
+                GetClipboard()
+                SendMessage(nextClipViewer, m.Msg, m.WParam, m.LParam)
             Case WM_CHANGECBCHAIN
-                If m.WParam = IntNextClip Then
-                    IntNextClip = m.LParam
+                If m.WParam = nextClipViewer Then 'wParam = hWndRemove = hWnd2
+                    nextClipViewer = m.LParam 'lParam = hWnd3
                 Else
-                    SendMessage(IntNextClip, m.Msg, m.WParam, m.LParam)
+                    SendMessage(nextClipViewer, m.Msg, m.WParam, m.LParam)
                 End If
             Case Else
                 MyBase.WndProc(m)
@@ -60,22 +64,19 @@ Public Class Main
         End Select
     End Sub
 
-    Sub DisplayClipboardData()
+    Private Sub GetClipboard()
         Try
             Dim iData As New DataObject
             iData = Clipboard.GetDataObject
-
-            If iData.GetDataPresent(DataFormats.Rtf) Then
-                Debug.WriteLine(iData.GetData(DataFormats.Text, True).ToString())
+            If iData.GetDataPresent(DataFormats.UnicodeText) Then
+                MsgBox(iData.GetData(DataFormats.Text, True).ToString())
             ElseIf iData.GetDataPresent(DataFormats.Text) Then
-                Debug.WriteLine(iData.GetData(DataFormats.Text, True).ToString())
+                MsgBox(iData.GetData(DataFormats.Text, True).ToString())
             Else
-                MsgBox("Other data format")
+                'do nothing'
             End If
-
         Catch ex As Exception
-            MsgBox("Fallo")
-
+            Debug.WriteLine(ex.Message)
         End Try
     End Sub
 
@@ -125,6 +126,7 @@ Public Class Main
             kbHook.Dispose()
             mHook.Dispose()
         End If
+        fHook.FocusThread.Abort()
     End Sub
 
     'Método que se encarga de capturar el control del hilo para poder modificar la lista de otro proceso'
