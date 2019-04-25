@@ -10,11 +10,11 @@
     End Enum
     'Type of actions registered'
     Public Enum TypeAction
-        ActivaApp = 1
-        ScrollApp = 2
-        CopyApp = 3
-        PasteApp = 4
-        TypeApp = 5
-        'CombKeyApp = 6
+        CopyApp = 1
+        PasteApp = 2
+        TypeApp = 3
+        ScrollApp = 4
+        'CombKeyApp = 5
+        ActivaApp = 6
     End Enum
 End Module

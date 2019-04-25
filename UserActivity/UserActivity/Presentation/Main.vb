@@ -5,7 +5,7 @@ Public Class Main
     Private WithEvents kbHook As KeyboardHook
     Private WithEvents mHook As MouseHook
     Private WithEvents fHook As FocusHook
-    'Esta varibale es la encargada de controlar que el foco sea el mismo y no se repitan mismas acciones
+    'Esta variable es la encargada de controlar que el foco sea el mismo y no se repitan mismas acciones
     Private lastFocus As String
     'Delegado que se encarga de llamar al método de manera asíncrona'
     Private Delegate Sub AddItemCallBack(ByVal item As String)
@@ -47,20 +47,20 @@ Public Class Main
         nextClipViewer = SetClipboardViewer(Me.Handle)
     End Sub
 
-    Protected Overrides Sub WndProc(ByRef m As System.Windows.Forms.Message)
+    Protected Overloads Overrides Sub WndProc(ByRef m As System.Windows.Forms.Message)
         Select Case m.Msg
-            Case WM_DRAWCLIPBOARD
+            Case WM_DRAWCLIPBOARD 'process Clipboard'
                 GetClipboard()
                 SendMessage(nextClipViewer, m.Msg, m.WParam, m.LParam)
-            Case WM_CHANGECBCHAIN
+            Case WM_CHANGECBCHAIN 'remove viewer'
                 If m.WParam = nextClipViewer Then 'wParam = hWndRemove = hWnd2
                     nextClipViewer = m.LParam 'lParam = hWnd3
                 Else
                     SendMessage(nextClipViewer, m.Msg, m.WParam, m.LParam)
                 End If
             Case Else
+                'unhandled window message'
                 MyBase.WndProc(m)
-                ' break
         End Select
     End Sub
 
@@ -68,12 +68,11 @@ Public Class Main
         Try
             Dim iData As New DataObject
             iData = Clipboard.GetDataObject
-            If iData.GetDataPresent(DataFormats.UnicodeText) Then
-                MsgBox(iData.GetData(DataFormats.Text, True).ToString())
-            ElseIf iData.GetDataPresent(DataFormats.Text) Then
-                MsgBox(iData.GetData(DataFormats.Text, True).ToString())
+            If iData.ContainsText Then
+                MsgBox("hola")
             Else
-                'do nothing'
+                MsgBox("other format")
+                'Do nothing'
             End If
         Catch ex As Exception
             Debug.WriteLine(ex.Message)

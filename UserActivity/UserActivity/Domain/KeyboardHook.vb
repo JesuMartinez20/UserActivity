@@ -23,20 +23,9 @@ Public Class KeyboardHook
             _HHookID = value
         End Set
     End Property
-
-    'Public Property ThreadFocus As Thread
-    'Get
-    'Return _threadFocus
-    'End Get
-    'Set(value As Thread)
-    '       _threadFocus = value
-    'End Set
-    'End Property
     '********************************************************************************************'
     'Constructor'
     Public Sub New()
-        '_threadFocus = New Threading.Thread(AddressOf GetFocusInfo)
-        '_threadFocus.Start()
         _HHookID = IntPtr.Zero
         'hInstance = System.Runtime.InteropServices.Marshal.GetHINSTANCE(System.Reflection.Assembly.GetExecutingAssembly.GetModules()(0)).ToInt32
         _HHookID = SetWindowsHookEx(HookType.WH_KEYBOARD_LL, KBDLLHookProcDelegate, 0, 0)
@@ -57,15 +46,6 @@ Public Class KeyboardHook
         LLKHF_ALTDOWN = &H20
         LLKHF_UP = &H80
     End Enum
-    'Focus'
-    Private Sub GetFocusInfo()
-        While True
-            Dim focus = GetPathName()
-            Dim procesID = GetProcessID()
-            'RaiseEvent CombKey(VK_LMENU, 0, focus, procesID)
-            System.Threading.Thread.Sleep(5000)
-        End While
-    End Sub
     'Se declaran los eventos de teclado'
     Public Event KeyDown(ByVal action As Integer, ByVal focus As String)
     'Public Event CombKey(ByVal action As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal focus As String)
