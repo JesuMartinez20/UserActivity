@@ -94,10 +94,9 @@ Public Class Main
         End If
     End Sub
 
-    'Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Integer, ByVal pathTitle As String) Handles kbHook.CombKey
-    '   AddItemToList(Now.ToString + "#" + typeAction.ToString + "[" + key.ToString + "+" + vKey.ToString + "]" + " en App: " + pathTitle + "#" + user)
-    '  lastFocus = pathTitle
-    'End Sub
+    Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys) Handles kbHook.CombKey
+        ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
+    End Sub
 
     Private Sub mHook_MouseWheel(ByVal typeAction As Integer, ByVal pathTitle As String) Handles mHook.MouseWheel
         Static focusWheel As String

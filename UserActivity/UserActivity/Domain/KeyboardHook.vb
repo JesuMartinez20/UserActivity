@@ -48,6 +48,7 @@ Public Class KeyboardHook
     End Enum
     'Se declaran los eventos de teclado'
     Public Event KeyDown(ByVal action As Integer, ByVal focus As String)
+    Public Event CombKey(ByVal action As Integer, ByVal key As Keys, ByVal vKey As Integer)
     'Public Event CombKey(ByVal action As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal focus As String)
     'Esta función se encarga de mostrar los eventos elegidos'
     Private Function KeyboardProc(nCode As Integer, wParam As IntPtr, lParam As IntPtr) As Integer
@@ -58,8 +59,27 @@ Public Class KeyboardHook
             Select Case wParam
                 Case WM_KEYDOWN, WM_SYSKEYDOWN
                     'Capturamos las combinaciones de tecla más usadas'
+                    action = TypeAction.CombKeyApp
                     keyCode = CType(Marshal.PtrToStructure(lParam, Hookstruct.GetType()), KBDLLHOOKSTRUCT).vkCode
-                    If keyCode = VK_LCONTROL Or keyCode = VK_RCONTROL Or keyCode = VK_LMENU Or keyCode = VK_TAB Then
+                    If GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_C Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_C Then
+                        RaiseEvent CombKey(action, VK_LCONTROL, keyCode)
+                    ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_V Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_V Then
+                        RaiseEvent CombKey(action, VK_LCONTROL, keyCode)
+                    ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_X Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_X Then
+                        RaiseEvent CombKey(action, VK_LCONTROL, keyCode)
+                    ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_Z Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_Z Then
+                        RaiseEvent CombKey(action, VK_LCONTROL, keyCode)
+                    ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_Y Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_Y Then
+                        RaiseEvent CombKey(action, VK_LCONTROL, keyCode)
+                    ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_S Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_S Then
+                        RaiseEvent CombKey(action, VK_LCONTROL, keyCode)
+                    ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_G Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_G Then
+                        RaiseEvent CombKey(action, VK_LCONTROL, keyCode)
+                    ElseIf GetAsyncKeyState(VK_LMENU) And keyCode = VK_TAB Then
+                        RaiseEvent CombKey(action, VK_LMENU, keyCode)
+                    ElseIf GetAsyncKeyState(VK_LMENU) And keyCode = VK_F4 Then
+                        RaiseEvent CombKey(action, VK_LMENU, keyCode)
+                    ElseIf keyCode = VK_LCONTROL Or keyCode = VK_RCONTROL Or keyCode = VK_LMENU Then
                         'do nothing'
                         'de esta manera no se registra una tecla perteneciente a una combinación'
                     Else

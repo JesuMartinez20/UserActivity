@@ -23,7 +23,12 @@ Public Class FocusHook
         While True
             Dim currentFocus As String = GetPathName()
             Dim action As Integer = TypeAction.ActivaApp
-            RaiseEvent FocusRise(action, currentFocus)
+            'Si no se consigue capturar el foco actual no se lanza'
+            If currentFocus <> Nothing Then
+                RaiseEvent FocusRise(action, currentFocus)
+            Else
+                'do nothing'
+            End If
             System.Threading.Thread.Sleep(5000)
         End While
     End Sub

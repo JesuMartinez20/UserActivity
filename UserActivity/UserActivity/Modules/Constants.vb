@@ -15,6 +15,9 @@
     Public Const VK_V As Integer = &H56
     Public Const VK_F As Integer = &H46
     Public Const VK_Z As Integer = &H5A
+    Public Const VK_Y As Integer = &H59
+    Public Const VK_S As Integer = &H53
+    Public Const VK_G As Integer = &H47
     Public Const VK_F4 As Integer = &H73
     'Notificaciones de entrada de teclado'
     Public Const WM_KEYDOWN As Integer = &H100

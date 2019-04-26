@@ -14,7 +14,7 @@
         PasteApp = 2
         TypeApp = 3
         ScrollApp = 4
-        'CombKeyApp = 5
+        CombKeyApp = 5
         ActivaApp = 6
     End Enum
 End Module
