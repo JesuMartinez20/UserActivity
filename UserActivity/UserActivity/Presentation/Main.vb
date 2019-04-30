@@ -1,7 +1,4 @@
-﻿Imports System.Runtime.InteropServices
-Imports System.Text
-
-Public Class Main
+﻿Public Class Main
     Private WithEvents kbHook As KeyboardHook
     Private WithEvents mHook As MouseHook
     Private WithEvents fHook As FocusHook
@@ -10,17 +7,8 @@ Public Class Main
     'Delegado que se encarga de llamar al método de manera asíncrona'
     Private Delegate Sub AddItemCallBack(ByVal item As String)
     Private nextClipViewer As IntPtr
-    <DllImport("User32.dll")>
-    Protected Shared Function SetClipboardViewer(ByVal hWndNewViewer As IntPtr) As IntPtr
-    End Function
-
-    <DllImport("User32.dll")>
-    Public Shared Function ChangeClipboardChain(ByVal hWndRemove As IntPtr, ByVal hWndNewNext As IntPtr) As Boolean
-    End Function
-
-    <DllImport("user32.dll")>
-    Public Shared Function SendMessage(ByVal hwnd As IntPtr, ByVal wMsg As Integer, ByVal wParam As IntPtr, ByVal lParam As IntPtr) As Integer
-    End Function
+    'Evento del Clipboard'
+    Public Event ClipboardData(ByVal clipboardText As String)
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         StartHooks()
@@ -46,11 +34,11 @@ Public Class Main
         Clipboard.Clear()
         nextClipViewer = SetClipboardViewer(Me.Handle)
     End Sub
-
+    'Sobrecargamos el Window Procedure para recibir mensajes del Clipboard'
     Protected Overloads Overrides Sub WndProc(ByRef m As System.Windows.Forms.Message)
         Select Case m.Msg
             Case WM_DRAWCLIPBOARD 'process Clipboard'
-                GetClipboard()
+                GetClipboardData()
                 SendMessage(nextClipViewer, m.Msg, m.WParam, m.LParam)
             Case WM_CHANGECBCHAIN 'remove viewer'
                 If m.WParam = nextClipViewer Then 'wParam = hWndRemove = hWnd2
@@ -63,21 +51,35 @@ Public Class Main
                 MyBase.WndProc(m)
         End Select
     End Sub
-
-    Private Sub GetClipboard()
+    'En este método se captura la información que hay contenida en el Clipboard'
+    Private Sub GetClipboardData()
         Try
             Dim iData As New DataObject
             iData = Clipboard.GetDataObject
-            If iData.ContainsText Then
-                MsgBox("hola")
+            If iData.ContainsText Then 'ANSI TEXT'
+                RaiseEvent ClipboardData(iData.GetData(DataFormats.Text, True).ToString())
+            ElseIf iData.ContainsImage Then 'IMAGE FORMAT'
+                RaiseEvent ClipboardData(iData.GetData(DataFormats.Bitmap, True).ToString())
             Else
-                MsgBox("other format")
                 'Do nothing'
             End If
         Catch ex As Exception
-            Debug.WriteLine(ex.Message)
+            MsgBox(ex.Message)
         End Try
     End Sub
+
+    'Public Sub RemoveItemsDuplicated(ByVal texto As String)
+    'If ListBox1.Items.Count <> 0 Then
+    'For i = 0 To ListBox1.Items.Count - 1
+    'If ListBox1.Items(i).ToString = texto Then
+    '               ListBox1.Items.RemoveAt(i)
+    '              ListBox1.TopIndex = ListBox1.TopIndex = ListBox1.Items.Count - 1
+    'Else
+    '               i += 1
+    'End If
+    'Next
+    'End If
+    'End Sub
 
     Private Sub btnHook_Click(sender As Object, e As EventArgs) Handles btnHook.Click
     End Sub
@@ -86,7 +88,7 @@ Public Class Main
         'De esta manera no interfiere con en el resto de eventos'
         Static focusKey As String
         If focusKey <> pathTitle Then
-            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " en App: " + pathTitle + "#" + user)
+            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             focusKey = pathTitle
         Else
@@ -94,14 +96,14 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys) Handles kbHook.CombKey
-        ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
-    End Sub
+    'Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys) Handles kbHook.CombKey
+    '   ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
+    'End Sub
 
     Private Sub mHook_MouseWheel(ByVal typeAction As Integer, ByVal pathTitle As String) Handles mHook.MouseWheel
         Static focusWheel As String
         If focusWheel <> pathTitle Then
-            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " en App: " + pathTitle + "#" + user)
+            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             focusWheel = pathTitle
         Else
@@ -119,14 +121,33 @@ Public Class Main
         End If
     End Sub
 
+    Private Sub ClipboardEvent(ByVal clipboardText As String) Handles Me.ClipboardData
+        Static lastcbtext As String
+        If clipboardText <> lastcbtext Then
+            ListBox1.Items.Add(Now.ToString + "#" + Convert.ToInt32(TypeAction.CopyApp).ToString + "#" + user)
+            ListBox1.TopIndex = ListBox1.Items.Count - 1
+            lastcbtext = clipboardText
+        Else
+            'do nothing'
+        End If
+    End Sub
+
+    Private Sub UnregisterClipboardViewer()
+        ChangeClipboardChain(Me.Handle, nextClipViewer)
+    End Sub
+
     Private Sub Form1_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         If kbHook IsNot Nothing Or mHook IsNot Nothing Then
             kbHook.Dispose()
             mHook.Dispose()
         End If
-        fHook.FocusThread.Abort()
+        Try
+            fHook.FocusThread.Abort()
+        Catch ThreadAbortException As Exception
+            Debug.WriteLine(ThreadAbortException.Message)
+        End Try
+        UnregisterClipboardViewer()
     End Sub
-
     'Método que se encarga de capturar el control del hilo para poder modificar la lista de otro proceso'
     Public Sub AddItemToList(ByVal item As String)
         If Me.ListBox1.InvokeRequired Then
