@@ -51,6 +51,7 @@
                 MyBase.WndProc(m)
         End Select
     End Sub
+
     'En este método se captura la información que hay contenida en el Clipboard'
     Private Sub GetClipboardData()
         Try
