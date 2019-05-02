@@ -2,10 +2,13 @@
     Private WithEvents kbHook As KeyboardHook
     Private WithEvents mHook As MouseHook
     Private WithEvents fHook As FocusHook
-    'Esta variable es la encargada de controlar que el foco sea el mismo y no se repitan mismas acciones
+    'Esta variable es la encargada de controlar que el foco sea el mismo y no se repitan mismas acciones'
     Private lastFocus As String
+    'Dictionary<String,Integer>'
+    Private dictionary As New Dictionary(Of String, Integer)
     'Delegado que se encarga de llamar al método de manera asíncrona'
     Private Delegate Sub AddItemCallBack(ByVal item As String)
+    'Obtiene el Handle de la ventana actual para el clipboard'
     Private nextClipViewer As IntPtr
     'Evento del Clipboard'
     Public Event ClipboardData(ByVal clipboardText As String)
@@ -14,13 +17,16 @@
         StartHooks()
         StartClipboard()
     End Sub
+
     'Se inicializan los hooks'
     Private Sub StartHooks()
         'Se inicializa el foco principal de la aplicación'
         lastFocus = GetPathName()
+        dictionary = ReadIni()
+        MsgBox(dictionary.Where(Function(p) p.Key = "CounterFocus").FirstOrDefault.Value.ToString)
         kbHook = New KeyboardHook()
         mHook = New MouseHook()
-        fHook = New FocusHook()
+        fHook = New FocusHook(dictionary)
         If mHook.HHookID = IntPtr.Zero Then
             Throw New Exception("Could not set mouse hook")
             mHook.Dispose()
@@ -34,6 +40,19 @@
         Clipboard.Clear()
         nextClipViewer = SetClipboardViewer(Me.Handle)
     End Sub
+    'Función que devuelve un diccionario con el contenido del fichero .ini'
+    Private Function ReadIni()
+        Dim ini As New FicherosINI("C:\Users\jmmanrique\Desktop\config.ini")
+        Dim arrayEvents() As String = ini.GetSection("TIPOS_EVENTOS")
+        'Como se guardan pares de valores {llave = valor} el Step es igual a 2'
+        For i = 0 To arrayEvents.Length - 1 Step 2
+            dictionary.Add(arrayEvents(i), Convert.ToInt32(arrayEvents(i + 1)))
+        Next
+        'Se agrega el contador del cambio de foco'
+        dictionary.Add("CounterFocus", ini.GetInteger("FOCO", "CounterFocus"))
+        Return dictionary
+    End Function
+
     'Sobrecargamos el Window Procedure para recibir mensajes del Clipboard'
     Protected Overloads Overrides Sub WndProc(ByRef m As System.Windows.Forms.Message)
         Select Case m.Msg
@@ -68,19 +87,6 @@
             MsgBox(ex.Message)
         End Try
     End Sub
-
-    'Public Sub RemoveItemsDuplicated(ByVal texto As String)
-    'If ListBox1.Items.Count <> 0 Then
-    'For i = 0 To ListBox1.Items.Count - 1
-    'If ListBox1.Items(i).ToString = texto Then
-    '               ListBox1.Items.RemoveAt(i)
-    '              ListBox1.TopIndex = ListBox1.TopIndex = ListBox1.Items.Count - 1
-    'Else
-    '               i += 1
-    'End If
-    'Next
-    'End If
-    'End Sub
 
     Private Sub btnHook_Click(sender As Object, e As EventArgs) Handles btnHook.Click
     End Sub

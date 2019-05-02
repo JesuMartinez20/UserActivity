@@ -7,7 +7,7 @@ Module CommonMethods
         Dim proc As Process
         Dim wProcID As Integer = Nothing
         Dim wFileName As String = ""
-
+        '
         If hWnd <> IntPtr.Zero Then
             GetWindowThreadProcessId(hWnd, wProcID)
             proc = Process.GetProcessById(wProcID)
@@ -32,11 +32,11 @@ Module CommonMethods
     Public Function GetForegroundInfo()
         Dim hWnd As IntPtr = GetForegroundWindow()
         Dim length As Integer
-        Dim wTitle As StringBuilder = New System.Text.StringBuilder("", 0)
-
+        Dim wTitle As StringBuilder = New StringBuilder("", 0)
+        '
         If hWnd <> IntPtr.Zero Then
             length = GetWindowTextLength(hWnd)
-            wTitle = New System.Text.StringBuilder("", length + 1)
+            wTitle = New StringBuilder("", length + 1)
             If length > 0 Then
                 GetWindowText(hWnd, wTitle, wTitle.Capacity)
             End If

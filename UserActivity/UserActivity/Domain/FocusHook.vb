@@ -2,6 +2,7 @@
 
 Public Class FocusHook
     Private _focusThread As Threading.Thread
+    Private _dictionary As Dictionary(Of String, Integer)
     'Getter'
     Public Property FocusThread As Thread
         Get
@@ -12,9 +13,10 @@ Public Class FocusHook
         End Set
     End Property
     'Constructor'
-    Public Sub New()
+    Public Sub New(ByVal dictionary As Dictionary(Of String, Integer))
         _focusThread = New Threading.Thread(AddressOf GetFocusInfo)
         _focusThread.Start()
+        _dictionary = dictionary
     End Sub
     'Evento de foco'
     Public Event FocusRise(ByVal action As Integer, ByVal focus As String)
@@ -26,6 +28,7 @@ Public Class FocusHook
             'Si no se consigue capturar el foco actual no se lanza'
             If currentFocus <> Nothing Then
                 RaiseEvent FocusRise(action, currentFocus)
+                action = action + 1
             Else
                 'do nothing'
             End If
