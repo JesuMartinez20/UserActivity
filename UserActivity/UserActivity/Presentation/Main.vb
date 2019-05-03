@@ -4,8 +4,10 @@
     Private WithEvents fHook As FocusHook
     'Esta variable es la encargada de controlar que el foco sea el mismo y no se repitan mismas acciones'
     Private lastFocus As String
-    'Dictionary<String,Integer>'
-    Private dictionary As New Dictionary(Of String, Integer)
+    'Dictionary<String,Integer> del fichero .ini'
+    Private dictionaryIni As New Dictionary(Of String, Integer)
+    'Dictionary<String,Integer> para controlar el número de focos que se van registrando en la aplicación'
+    Private dictionaryFocus As New Dictionary(Of String, Integer)
     'Delegado que se encarga de llamar al método de manera asíncrona'
     Private Delegate Sub AddItemCallBack(ByVal item As String)
     'Obtiene el Handle de la ventana actual para el clipboard'
@@ -14,26 +16,26 @@
     Public Event ClipboardData(ByVal clipboardText As String)
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        dictionaryIni = ReadIni()
         StartHooks()
         StartClipboard()
     End Sub
-
     'Se inicializan los hooks'
     Private Sub StartHooks()
         'Se inicializa el foco principal de la aplicación'
         lastFocus = GetPathName()
-        dictionary = ReadIni()
-        MsgBox(dictionary.Where(Function(p) p.Key = "CounterFocus").FirstOrDefault.Value.ToString)
-        kbHook = New KeyboardHook()
-        mHook = New MouseHook()
-        fHook = New FocusHook(dictionary)
-        If mHook.HHookID = IntPtr.Zero Then
-            Throw New Exception("Could not set mouse hook")
-            mHook.Dispose()
-        ElseIf kbHook.HHookID = IntPtr.Zero Then
-            Throw New Exception("Could not set keyboard hook")
-            kbHook.Dispose()
-        End If
+        kbHook = New KeyboardHook(dictionaryIni)
+        mHook = New MouseHook(dictionaryIni)
+        fHook = New FocusHook(dictionaryIni)
+        Try
+            If mHook.HHookID = IntPtr.Zero Or kbHook.HHookID = IntPtr.Zero Then
+                mHook.Dispose()
+                kbHook.Dispose()
+            End If
+        Catch ex As Exception
+            MsgBox(ex.Message)
+            Application.Exit()
+        End Try
     End Sub
     'Se inicializa el clipboard'
     Private Sub StartClipboard()
@@ -46,13 +48,12 @@
         Dim arrayEvents() As String = ini.GetSection("TIPOS_EVENTOS")
         'Como se guardan pares de valores {llave = valor} el Step es igual a 2'
         For i = 0 To arrayEvents.Length - 1 Step 2
-            dictionary.Add(arrayEvents(i), Convert.ToInt32(arrayEvents(i + 1)))
+            dictionaryIni.Add(arrayEvents(i), Convert.ToInt32(arrayEvents(i + 1)))
         Next
         'Se agrega el contador del cambio de foco'
-        dictionary.Add("CounterFocus", ini.GetInteger("FOCO", "CounterFocus"))
-        Return dictionary
+        dictionaryIni.Add("CounterFocus", ini.GetInteger("FOCO", "CounterFocus"))
+        Return dictionaryIni
     End Function
-
     'Sobrecargamos el Window Procedure para recibir mensajes del Clipboard'
     Protected Overloads Overrides Sub WndProc(ByRef m As System.Windows.Forms.Message)
         Select Case m.Msg
@@ -70,7 +71,6 @@
                 MyBase.WndProc(m)
         End Select
     End Sub
-
     'En este método se captura la información que hay contenida en el Clipboard'
     Private Sub GetClipboardData()
         Try
@@ -88,14 +88,12 @@
         End Try
     End Sub
 
-    Private Sub btnHook_Click(sender As Object, e As EventArgs) Handles btnHook.Click
-    End Sub
-
     Private Sub kbHook_KeyDown(ByVal typeAction As Integer, ByVal pathTitle As String) Handles kbHook.KeyDown
         'De esta manera no interfiere con en el resto de eventos'
         Static focusKey As String
         If focusKey <> pathTitle Then
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
+            'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "en App:" + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             focusKey = pathTitle
         Else
@@ -103,26 +101,51 @@
         End If
     End Sub
 
-    'Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys) Handles kbHook.CombKey
-    '   ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
-    'End Sub
-
-    Private Sub mHook_MouseWheel(ByVal typeAction As Integer, ByVal pathTitle As String) Handles mHook.MouseWheel
-        Static focusWheel As String
-        If focusWheel <> pathTitle Then
-            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
+    Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.CombKey
+        Static lastkey As Keys
+        If vKey <> lastkey Then
+            'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
+            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " [" + key.ToString + "+" + vKey.ToString + "] en App: " + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
-            focusWheel = pathTitle
+            lastkey = vKey
         Else
             'do nothing'
         End If
     End Sub
 
+    Private Sub mHook_MouseWheel(ByVal typeAction As Integer, ByVal pathTitle As String) Handles mHook.MouseWheel
+        Static focusWheel As String
+        If focusWheel <> pathTitle Then
+            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
+            'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + " en App:" + pathTitle + "#" + user)
+            ListBox1.TopIndex = ListBox1.Items.Count - 1
+            focusWheel = pathTitle
+            Else
+            'do nothing'
+        End If
+    End Sub
+
     Private Sub fHook_FocusRise(ByVal typeAction As Integer, ByVal pathTitle As String) Handles fHook.FocusRise
+        'Estas dos variables se encargan de contar los focos registrados'
+        Static counterFocusApp As Integer
+        Static counterLastFocus As Integer = typeAction
+        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         'Comparamos que el foco actual es diferente del foco más antiguo (lastfocus)'
         If lastFocus <> pathTitle Then
-            AddItemToList(Now.ToString + "#" + typeAction.ToString + " en App: " + pathTitle + "#" + user)
-            lastFocus = pathTitle
+            'Si ya se ha registrado un foco determinado se busca en el diccionario de focos y se actualiza el foco'
+            If dictionaryFocus.ContainsKey(pathTitle) Then
+                Dim focusRegistered As Integer = dictionaryFocus.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
+                'AddItemToList(Now.ToString + "#" + focusRegistered.ToString + " en App: " + pathTitle + "#" + user)
+                AddItemToList(Now.ToString + "#" + focusRegistered.ToString + user)
+                lastFocus = pathTitle
+            Else 'En caso contrario se actualizan el foco y el contador además de registrarlo en el diccionario'
+                counterFocusApp = counterLastFocus + 1
+                AddItemToList(Now.ToString + "#" + counterFocusApp.ToString + "#" + user)
+                'AddItemToList(Now.ToString + "#" + focusRegistered.ToString + " en App: " + pathTitle + "#" + user)
+                dictionaryFocus.Add(pathTitle, counterFocusApp)
+                lastFocus = pathTitle
+                counterLastFocus = counterFocusApp
+            End If
         Else
             'do nothing'
         End If
@@ -131,7 +154,10 @@
     Private Sub ClipboardEvent(ByVal clipboardText As String) Handles Me.ClipboardData
         Static lastcbtext As String
         If clipboardText <> lastcbtext Then
-            ListBox1.Items.Add(Now.ToString + "#" + Convert.ToInt32(TypeAction.CopyApp).ToString + "#" + user)
+            Dim pathTitle As String = GetPathName()
+            Dim typeAction As Integer = SearchValue(dictionaryIni, "CopyApp")
+            ListBox1.Items.Add(Now.ToString + "#" + typeAction + "#" + user)
+            'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "en App: " + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             lastcbtext = clipboardText
         Else
@@ -144,10 +170,6 @@
     End Sub
 
     Private Sub Form1_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        If kbHook IsNot Nothing Or mHook IsNot Nothing Then
-            kbHook.Dispose()
-            mHook.Dispose()
-        End If
         Try
             fHook.FocusThread.Abort()
         Catch ThreadAbortException As Exception

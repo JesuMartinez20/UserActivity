@@ -45,14 +45,6 @@ Public Class FicherosINI
     End Function
     'Función para leer una sección entera de un fichero INI'
     Public Function GetSection(ByVal sSection As String) As String()
-        ' Devuelve:
-        '   Un array con el nombre de la clave y el valor
-        '   Para leer los datos:
-        '       For i = 0 To UBound(elArray) -1 Step 2
-        '           sClave = elArray(i)
-        '           sValor = elArray(i+1)
-        '       Next
-        '
         Dim aSeccion() As String
         Dim n As Integer
         '

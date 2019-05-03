@@ -43,4 +43,13 @@ Module CommonMethods
         End If
         Return wTitle.ToString
     End Function
+    'Método que devuelve el valor de una key específica de un diccionario'
+    Public Function SearchValue(ByVal dictionary As Dictionary(Of String, Integer), ByVal key As String)
+        Dim action As Integer
+        If dictionary.ContainsKey(key) Then
+            action = dictionary.Where(Function(p) p.Key = key).FirstOrDefault.Value
+        Else action = 0
+        End If
+        Return action
+    End Function
 End Module

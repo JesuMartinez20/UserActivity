@@ -5,6 +5,7 @@ Public Class MouseHook
     'Private hInstance As Integer
     Private _HHookID As IntPtr
     Private Hookstruct As MSLLHOOKSTRUCT
+    Private _dictionary As Dictionary(Of String, Integer)
     '************************************************************************************************'
     'Librerías DLL importadas'
     <DllImport("User32.dll", CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.StdCall)>
@@ -24,8 +25,9 @@ Public Class MouseHook
     End Property
     '***********************************************************************************************'
     'Constructor'
-    Public Sub New()
+    Public Sub New(ByVal dictionary As Dictionary(Of String, Integer))
         _HHookID = IntPtr.Zero
+        _dictionary = dictionary
         'hInstance = System.Runtime.InteropServices.Marshal.GetHINSTANCE(System.Reflection.Assembly.GetExecutingAssembly.GetModules()(0)).ToInt32
         _HHookID = SetWindowsHookEx(HookType.WH_MOUSE_LL, MSDLLHookProcDelegate, 0, 0)
     End Sub
@@ -53,7 +55,7 @@ Public Class MouseHook
             Select Case wParam
                 Case WM_MOUSEWHEEL
                     focus = GetPathName()
-                    action = TypeAction.ScrollApp
+                    action = SearchValue(_dictionary, "ScrollApp")
                     RaiseEvent MouseWheel(action, focus)
             End Select
         End If
