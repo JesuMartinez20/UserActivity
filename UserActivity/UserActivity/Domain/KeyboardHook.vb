@@ -68,7 +68,7 @@ Public Class KeyboardHook
     End Function
     'En este método se capturan las combinaciones de teclas más usadas'
     Private Sub GrapCombKey(ByRef action As Integer, keyCode As Integer, ByRef focus As String)
-        'En esta parte se capturan las combinaciones que no se quiere registrar'
+        'En esta parte se capturan las combinaciones que no se quiere registrar como evento de escritura o de comb de teclas'
         If GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_C Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_C _
             Or GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_X Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_X _
             Or GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_Z Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_Z _

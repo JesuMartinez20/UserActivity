@@ -4,6 +4,8 @@
     Private WithEvents fHook As FocusHook
     'Esta variable es la encargada de controlar que el foco sea el mismo y no se repitan mismas acciones'
     Private lastFocus As String
+    'Esta variable se encarga de controlar la última acción registrada'
+    Private lastAction As Integer
     'Dictionary<String,Integer> del fichero .ini'
     Private dictionaryIni As New Dictionary(Of String, Integer)
     'Dictionary<String,Integer> para controlar el número de focos que se van registrando en la aplicación'
@@ -90,37 +92,35 @@
 
     Private Sub kbHook_KeyDown(ByVal typeAction As Integer, ByVal pathTitle As String) Handles kbHook.KeyDown
         'De esta manera no interfiere con en el resto de eventos'
-        Static focusKey As String
-        If focusKey <> pathTitle Then
+
+        If typeAction <> lastAction Then
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "en App:" + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
-            focusKey = pathTitle
+            lastAction = typeAction
         Else
             'do nothing'
         End If
     End Sub
 
     Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.CombKey
-        Static lastkey As Keys
-        If vKey <> lastkey Then
+        If typeAction <> lastAction Then
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " [" + key.ToString + "+" + vKey.ToString + "] en App: " + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
-            lastkey = vKey
+            lastAction = typeAction
         Else
             'do nothing'
         End If
     End Sub
 
     Private Sub mHook_MouseWheel(ByVal typeAction As Integer, ByVal pathTitle As String) Handles mHook.MouseWheel
-        Static focusWheel As String
-        If focusWheel <> pathTitle Then
+        If typeAction <> lastAction Then
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + " en App:" + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
-            focusWheel = pathTitle
-            Else
+            lastAction = typeAction
+        Else
             'do nothing'
         End If
     End Sub
@@ -131,20 +131,22 @@
         Static counterLastFocus As Integer = typeAction
         ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         'Comparamos que el foco actual es diferente del foco más antiguo (lastfocus)'
-        If lastFocus <> pathTitle Then
+        If lastFocus <> pathTitle And typeAction <> lastAction Then
             'Si ya se ha registrado un foco determinado se busca en el diccionario de focos y se actualiza el foco'
             If dictionaryFocus.ContainsKey(pathTitle) Then
                 Dim focusRegistered As Integer = dictionaryFocus.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
                 'AddItemToList(Now.ToString + "#" + focusRegistered.ToString + " en App: " + pathTitle + "#" + user)
                 AddItemToList(Now.ToString + "#" + focusRegistered.ToString + user)
                 lastFocus = pathTitle
+                lastAction = focusRegistered
             Else 'En caso contrario se actualizan el foco y el contador además de registrarlo en el diccionario'
                 counterFocusApp = counterLastFocus + 1
                 AddItemToList(Now.ToString + "#" + counterFocusApp.ToString + "#" + user)
-                'AddItemToList(Now.ToString + "#" + focusRegistered.ToString + " en App: " + pathTitle + "#" + user)
+                'AddItemToList(Now.ToString + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
                 dictionaryFocus.Add(pathTitle, counterFocusApp)
                 lastFocus = pathTitle
                 counterLastFocus = counterFocusApp
+                lastAction = counterFocusApp
             End If
         Else
             'do nothing'
@@ -152,14 +154,13 @@
     End Sub
 
     Private Sub ClipboardEvent(ByVal clipboardText As String) Handles Me.ClipboardData
-        Static lastcbtext As String
-        If clipboardText <> lastcbtext Then
-            Dim pathTitle As String = GetPathName()
-            Dim typeAction As Integer = SearchValue(dictionaryIni, "CopyApp")
-            ListBox1.Items.Add(Now.ToString + "#" + typeAction + "#" + user)
+        Dim pathTitle As String = GetPathName()
+        Dim typeAction As Integer = SearchValue(dictionaryIni, "CopyApp")
+        If typeAction <> lastAction Then
+            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "en App: " + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
-            lastcbtext = clipboardText
+            lastAction = typeAction
         Else
             'do nothing'
         End If

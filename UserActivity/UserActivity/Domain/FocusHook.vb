@@ -27,10 +27,10 @@ Public Class FocusHook
             Dim action As Integer = SearchValue(_dictionary, "InitActivaApp")
             Dim counter As Integer = SearchValue(_dictionary, "CounterFocus")
             'Si no se consigue capturar el foco actual no se lanza'
-            If currentFocus <> Nothing Then
-                RaiseEvent FocusRise(action, currentFocus)
-            Else
+            If currentFocus = Nothing Or currentFocus.Equals("C:\WINDOWS\Explorer.EXE") Then
                 'do nothing'
+            Else
+                RaiseEvent FocusRise(action, currentFocus)
             End If
             System.Threading.Thread.Sleep(counter)
         End While
