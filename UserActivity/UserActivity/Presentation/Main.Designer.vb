@@ -32,7 +32,7 @@ Partial Class Main
         Me.btnHook.Name = "btnHook"
         Me.btnHook.Size = New System.Drawing.Size(162, 23)
         Me.btnHook.TabIndex = 0
-        Me.btnHook.Text = "Hook Computer"
+        Me.btnHook.Text = "Stop Register"
         Me.btnHook.UseVisualStyleBackColor = True
         '
         'ListBox1

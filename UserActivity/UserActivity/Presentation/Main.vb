@@ -1,4 +1,6 @@
-﻿Public Class Main
+﻿Imports System.IO
+
+Public Class Main
     Private WithEvents kbHook As KeyboardHook
     Private WithEvents mHook As MouseHook
     Private WithEvents fHook As FocusHook
@@ -26,16 +28,28 @@
     Private Sub StartHooks()
         'Se inicializa el foco principal de la aplicación'
         lastFocus = GetPathName()
-        kbHook = New KeyboardHook(dictionaryIni)
-        mHook = New MouseHook(dictionaryIni)
-        fHook = New FocusHook(dictionaryIni)
+        'diccionario vacio significa que el archivo .ini no se ha encontrado'
+        If dictionaryIni.Count = 0 Then
+            Application.Exit()
+        Else
+            kbHook = New KeyboardHook(dictionaryIni)
+            mHook = New MouseHook(dictionaryIni)
+            fHook = New FocusHook(dictionaryIni)
+        End If
+        CheckHooks()
+    End Sub
+    'Commprueba que se hayan instalado correctamente los hooks'
+    Private Sub CheckHooks()
         Try
-            If mHook.HHookID = IntPtr.Zero Or kbHook.HHookID = IntPtr.Zero Then
+            If mHook.HHookID = IntPtr.Zero Then
+                Throw New Exception("Could not set mouse hook")
                 mHook.Dispose()
+            ElseIf kbHook.HHookID = IntPtr.Zero Then
+                Throw New Exception("Could not set keyboard hook")
                 kbHook.Dispose()
             End If
         Catch ex As Exception
-            MsgBox(ex.Message)
+            MessageBox.Show(ex.Message, "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Application.Exit()
         End Try
     End Sub
@@ -46,16 +60,29 @@
     End Sub
     'Función que devuelve un diccionario con el contenido del fichero .ini'
     Private Function ReadIni()
-        Dim ini As New FicherosINI("C:\Users\jmmanrique\Desktop\config.ini")
-        Dim arrayEvents() As String = ini.GetSection("TIPOS_EVENTOS")
-        'Como se guardan pares de valores {llave = valor} el Step es igual a 2'
-        For i = 0 To arrayEvents.Length - 1 Step 2
-            dictionaryIni.Add(arrayEvents(i), Convert.ToInt32(arrayEvents(i + 1)))
-        Next
-        'Se agrega el contador del cambio de foco'
-        dictionaryIni.Add("CounterFocus", ini.GetInteger("FOCO", "CounterFocus"))
+        Dim path = Application.StartupPath + "\config.ini"
+        CheckAndLoadFile(path)
         Return dictionaryIni
     End Function
+    'Este método se encarga de comprobar si existe el archivo y de crear un diccionario del archivo .ini'
+    Private Sub CheckAndLoadFile(path As String)
+        Try
+            If File.Exists(path) Then
+                Dim ini As New FicherosINI(path)
+                Dim arrayEvents() As String = ini.GetSection("TIPOS_EVENTOS")
+                'Como se guardan pares de valores {llave = valor} el Step es igual a 2'
+                For i = 0 To arrayEvents.Length - 1 Step 2
+                    dictionaryIni.Add(arrayEvents(i), Convert.ToInt32(arrayEvents(i + 1)))
+                Next
+                'Se agrega el contador del cambio de foco'
+                dictionaryIni.Add("CounterFocus", ini.GetInteger("FOCO", "CounterFocus"))
+            Else
+                Throw New Exception("No se puede abrir el archivo. Compruebe que la ruta del archivo es válida.")
+            End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message, "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End Try
+    End Sub
     'Sobrecargamos el Window Procedure para recibir mensajes del Clipboard'
     Protected Overloads Overrides Sub WndProc(ByRef m As System.Windows.Forms.Message)
         Select Case m.Msg
@@ -91,35 +118,39 @@
     End Sub
 
     Private Sub kbHook_KeyDown(ByVal typeAction As Integer, ByVal pathTitle As String) Handles kbHook.KeyDown
-        'De esta manera no interfiere con en el resto de eventos'
-
-        If typeAction <> lastAction Then
+        Static focusKey As String
+        If pathTitle <> focusKey Then
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "en App:" + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             lastAction = typeAction
+            focusKey = pathTitle
         Else
             'do nothing'
         End If
     End Sub
 
     Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.CombKey
-        If typeAction <> lastAction Then
+        Static lastkey As Keys
+        If vKey <> lastkey Then
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " [" + key.ToString + "+" + vKey.ToString + "] en App: " + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             lastAction = typeAction
+            lastkey = vKey
         Else
             'do nothing'
         End If
     End Sub
 
     Private Sub mHook_MouseWheel(ByVal typeAction As Integer, ByVal pathTitle As String) Handles mHook.MouseWheel
-        If typeAction <> lastAction Then
+        Static focusWheel As String
+        If pathTitle <> focusWheel Then
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + " en App:" + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             lastAction = typeAction
+            focusWheel = pathTitle
         Else
             'do nothing'
         End If
@@ -127,23 +158,32 @@
 
     Private Sub fHook_FocusRise(ByVal typeAction As Integer, ByVal pathTitle As String) Handles fHook.FocusRise
         'Estas dos variables se encargan de contar los focos registrados'
-        Static counterFocusApp As Integer
+        Static counterFocusApp As Integer = typeAction
         Static counterLastFocus As Integer = typeAction
         ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         'Comparamos que el foco actual es diferente del foco más antiguo (lastfocus)'
-        If lastFocus <> pathTitle And typeAction <> lastAction Then
+        If lastFocus <> pathTitle Then
             'Si ya se ha registrado un foco determinado se busca en el diccionario de focos y se actualiza el foco'
             If dictionaryFocus.ContainsKey(pathTitle) Then
                 Dim focusRegistered As Integer = dictionaryFocus.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
                 'AddItemToList(Now.ToString + "#" + focusRegistered.ToString + " en App: " + pathTitle + "#" + user)
-                AddItemToList(Now.ToString + "#" + focusRegistered.ToString + user)
+                AddItemToList(Now.ToString + "#" + focusRegistered.ToString + "#" + user)
                 lastFocus = pathTitle
                 lastAction = focusRegistered
-            Else 'En caso contrario se actualizan el foco y el contador además de registrarlo en el diccionario'
-                counterFocusApp = counterLastFocus + 1
+                'Se inicializa el foco con el número correspondiente del archivo .ini'
+            ElseIf counterFocusApp = counterLastFocus Then
                 AddItemToList(Now.ToString + "#" + counterFocusApp.ToString + "#" + user)
                 'AddItemToList(Now.ToString + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
                 dictionaryFocus.Add(pathTitle, counterFocusApp)
+                counterFocusApp = counterLastFocus + 1 'de esta manera los eventos se registrarán de manera creciente'
+                lastFocus = pathTitle
+                counterLastFocus = counterFocusApp
+                lastAction = counterFocusApp
+            Else 'En caso contrario se actualizan el foco y el contador, además de registrarse en el diccionario'
+                AddItemToList(Now.ToString + "#" + counterFocusApp.ToString + "#" + user)
+                'AddItemToList(Now.ToString + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
+                dictionaryFocus.Add(pathTitle, counterFocusApp)
+                counterFocusApp = counterLastFocus + 1
                 lastFocus = pathTitle
                 counterLastFocus = counterFocusApp
                 lastAction = counterFocusApp

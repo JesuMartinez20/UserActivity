@@ -26,7 +26,7 @@ Public Class FocusHook
             Dim currentFocus As String = GetPathName()
             Dim action As Integer = SearchValue(_dictionary, "InitActivaApp")
             Dim counter As Integer = SearchValue(_dictionary, "CounterFocus")
-            'Si no se consigue capturar el foco actual no se lanza'
+            'Si no se consigue capturar el foco actual o se trata del Explorer no se lanza'
             If currentFocus = Nothing Or currentFocus.Equals("C:\WINDOWS\Explorer.EXE") Then
                 'do nothing'
             Else

@@ -53,13 +53,12 @@ Public Class KeyboardHook
     'Public Event CombKey(ByVal action As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal focus As String)
     'Esta función se encarga de mostrar los eventos elegidos'
     Private Function KeyboardProc(nCode As Integer, wParam As IntPtr, lParam As IntPtr) As Integer
-        Dim action As Integer
+        Dim action As Integer = 0
         Dim keyCode As Integer
         Dim focus As String = ""
         If nCode = HookCodes.HC_ACTION Then
             Select Case wParam
                 Case WM_KEYDOWN, WM_SYSKEYDOWN
-                    action = SearchValue(_dictionary, "CombKeyApp")
                     keyCode = CType(Marshal.PtrToStructure(lParam, Hookstruct.GetType()), KBDLLHOOKSTRUCT).vkCode
                     GrapCombKey(action, keyCode, focus)
             End Select
@@ -79,12 +78,15 @@ Public Class KeyboardHook
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_V Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_V Then
             'RaiseEvent CombKey(action, VK_LCONTROL, keyCode)
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_S Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_S Then
+            action = SearchValue(_dictionary, "CombCtrlS")
             focus = GetPathName()
             RaiseEvent CombKey(action, VK_LCONTROL, keyCode, focus)
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_G Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_G Then
+            action = SearchValue(_dictionary, "CombCtrlG")
             focus = GetPathName()
             RaiseEvent CombKey(action, VK_LCONTROL, keyCode, focus)
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_F Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_F Then
+            action = SearchValue(_dictionary, "CombCtrlF")
             focus = GetPathName()
             RaiseEvent CombKey(action, VK_LCONTROL, keyCode, focus)
         Else
