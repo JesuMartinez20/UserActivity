@@ -1,6 +1,8 @@
 ﻿Module Constants
     'Usuario'
     Public user As String = Environment.UserName
+    'Se refiere a la ruta correspondiente del escritorio, task manager... etc'
+    Public explorer As String = "C:\WINDOWS\Explorer.EXE"
     'Notificaciones de entrada de ratón'
     Public Const WM_LBUTTONDOWN As Integer = &H201
     Public Const WM_LBUTTONUP As Integer = &H202
@@ -19,11 +21,15 @@
     Public Const VK_S As Integer = &H53
     Public Const VK_G As Integer = &H47
     Public Const VK_F4 As Integer = &H73
+    Public Const WM_MENURBUTTONUP As Integer = &H122
+    Public Const WM_INITMENUPOPUP As Integer = &H117
+    Public Const WM_CONTEXTMENU As Integer = &H7B
     'Notificaciones de entrada de teclado'
     Public Const WM_KEYDOWN As Integer = &H100
     Public Const WM_SYSKEYDOWN As Integer = &H104
     'Notificaciones de Clipboard'
     Public Const WM_DRAWCLIPBOARD As Integer = 776
     Public Const WM_CHANGECBCHAIN As Integer = 781
-    Public Const WM_PASTE As Integer = 770
+    Public Const WM_PASTE As Integer = &H302
+    Public Const WM_COPYDATA As Integer = 74
 End Module

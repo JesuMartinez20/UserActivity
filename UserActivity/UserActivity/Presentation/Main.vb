@@ -1,9 +1,11 @@
 ﻿Imports System.IO
+Imports System.Runtime.InteropServices
 
 Public Class Main
     Private WithEvents kbHook As KeyboardHook
     Private WithEvents mHook As MouseHook
     Private WithEvents fHook As FocusHook
+    Private Const WM_SETTEXT = &HC
     'Esta variable es la encargada de controlar que el foco sea el mismo y no se repitan mismas acciones'
     Private lastFocus As String
     'Esta variable se encarga de controlar la última acción registrada'
@@ -18,10 +20,24 @@ Public Class Main
     Private nextClipViewer As IntPtr
     'Evento del Clipboard'
     Public Event ClipboardData(ByVal clipboardText As String)
+    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function FindWindow(
+     ByVal lpClassName As String,
+     ByVal lpWindowName As String) As IntPtr
+    End Function
+    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function FindWindowEx(ByVal parentHandle As IntPtr,
+                      ByVal childAfter As IntPtr,
+                      ByVal lclassName As String,
+                      ByVal windowTitle As String) As IntPtr
+    End Function
+    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function PostMessage(ByVal hWnd As IntPtr, ByVal Msg As UInteger, ByVal wParam As IntPtr, ByVal lParam As IntPtr) As Boolean
+    End Function
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         dictionaryIni = ReadIni()
-        StartHooks()
+        'StartHooks()
         StartClipboard()
     End Sub
     'Se inicializan los hooks'
@@ -119,7 +135,7 @@ Public Class Main
 
     Private Sub kbHook_KeyDown(ByVal typeAction As Integer, ByVal pathTitle As String) Handles kbHook.KeyDown
         Static focusKey As String
-        If pathTitle <> focusKey Then
+        If pathTitle <> focusKey And pathTitle <> explorer Then
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "en App:" + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
@@ -132,7 +148,7 @@ Public Class Main
 
     Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.CombKey
         Static lastkey As Keys
-        If vKey <> lastkey Then
+        If vKey <> lastkey And pathTitle <> explorer Then
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " [" + key.ToString + "+" + vKey.ToString + "] en App: " + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
@@ -145,7 +161,7 @@ Public Class Main
 
     Private Sub mHook_MouseWheel(ByVal typeAction As Integer, ByVal pathTitle As String) Handles mHook.MouseWheel
         Static focusWheel As String
-        If pathTitle <> focusWheel Then
+        If pathTitle <> focusWheel And pathTitle <> explorer Then
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + " en App:" + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
@@ -162,7 +178,7 @@ Public Class Main
         Static counterLastFocus As Integer = typeAction
         ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         'Comparamos que el foco actual es diferente del foco más antiguo (lastfocus)'
-        If lastFocus <> pathTitle Then
+        If lastFocus <> pathTitle And pathTitle <> explorer Then
             'Si ya se ha registrado un foco determinado se busca en el diccionario de focos y se actualiza el foco'
             If dictionaryFocus.ContainsKey(pathTitle) Then
                 Dim focusRegistered As Integer = dictionaryFocus.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
@@ -196,7 +212,7 @@ Public Class Main
     Private Sub ClipboardEvent(ByVal clipboardText As String) Handles Me.ClipboardData
         Dim pathTitle As String = GetPathName()
         Dim typeAction As Integer = SearchValue(dictionaryIni, "CopyApp")
-        If typeAction <> lastAction Then
+        If typeAction <> lastAction And pathTitle <> explorer Then
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "en App: " + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
@@ -225,5 +241,15 @@ Public Class Main
         Else
             ListBox1.Items.Add(item)
         End If
+    End Sub
+
+    Private Sub btnHook_Click(sender As Object, e As EventArgs) Handles btnHook.Click
+        Dim SendText As String
+        Dim notepad As IntPtr, editx As IntPtr
+
+        SendText = "Hello this will write to notepad!"
+        notepad = FindWindow("notepad", vbNullString)
+        editx = FindWindowEx(notepad, 0&, "edit", vbNullString)
+        Call SendMessage(editx, WM_SETTEXT, 0&, SendText)
     End Sub
 End Class
