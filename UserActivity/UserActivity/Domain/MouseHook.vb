@@ -11,6 +11,12 @@ Public Class MouseHook
     <DllImport("User32.dll", CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.StdCall)>
     Private Shared Function SetWindowsHookEx(ByVal idHook As HookType, ByVal HookProc As MSDLLHookProc, ByVal hInstance As IntPtr, ByVal wParam As Integer) As Integer
     End Function
+    <System.Runtime.InteropServices.DllImport("user32.dll", SetLastError:=True)>
+    Private Shared Function FindWindowEx(hwndParent As IntPtr, hwndChildAfter As IntPtr, lpszClass As String, lpszWindow As String) As IntPtr
+    End Function
+    <DllImport("user32.dll", SetLastError:=True)>
+    Private Shared Function GetActiveWindow() As IntPtr
+    End Function
     'Se delega la función KBDLLHookProc de manera asíncrona y se declara el objeto de este tipo'
     Private Delegate Function MSDLLHookProc(ByVal nCode As Integer, ByVal wParam As IntPtr, ByVal lParam As IntPtr) As Integer
     Private MSDLLHookProcDelegate As MSDLLHookProc = New MSDLLHookProc(AddressOf MouseProc)
