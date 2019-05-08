@@ -12,6 +12,8 @@ Public Class Main
     Private lastAction As Integer
     'Dictionary<String,Integer> del fichero .ini'
     Private dictionaryIni As New Dictionary(Of String, Integer)
+    'Variable para controlar el último origen del copy'
+    Private lastOrigin As String
     'Dictionary<String,Integer> para controlar el número de focos que se van registrando en la aplicación'
     Private dictionaryFocus As New Dictionary(Of String, Integer)
     'Delegado que se encarga de llamar al método de manera asíncrona'
@@ -37,7 +39,7 @@ Public Class Main
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         dictionaryIni = ReadIni()
-        'StartHooks()
+        StartHooks()
         StartClipboard()
     End Sub
     'Se inicializan los hooks'
@@ -97,6 +99,7 @@ Public Class Main
             End If
         Catch ex As Exception
             MessageBox.Show(ex.Message, "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Environment.Exit(0)
         End Try
     End Sub
     'Sobrecargamos el Window Procedure para recibir mensajes del Clipboard'
@@ -209,12 +212,24 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub ClipboardEvent(ByVal clipboardText As String) Handles Me.ClipboardData
+    Private Sub ClipboardEvent() Handles Me.ClipboardData
         Dim pathTitle As String = GetPathName()
-        Dim typeAction As Integer = SearchValue(dictionaryIni, "CopyApp")
+        Dim typeAction As Integer = SearchValue(dictionaryIni, "Copy")
         If typeAction <> lastAction And pathTitle <> explorer Then
             ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
             'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "en App: " + pathTitle + "#" + user)
+            ListBox1.TopIndex = ListBox1.Items.Count - 1
+            lastAction = typeAction
+            lastOrigin = pathTitle
+        Else
+            'do nothing'
+        End If
+    End Sub
+
+    Private Sub PasteEvent(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.PasteEvent
+        If pathTitle <> explorer Then
+            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
+            'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " en App:" + pathTitle + "#" + user + "#" + "Origen: " + lastOrigin)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             lastAction = typeAction
         Else

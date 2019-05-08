@@ -61,7 +61,7 @@ Public Class MouseHook
             Select Case wParam
                 Case WM_MOUSEWHEEL
                     focus = GetPathName()
-                    action = SearchValue(_dictionary, "ScrollApp")
+                    action = SearchValue(_dictionary, "Scroll")
                     RaiseEvent MouseWheel(action, focus)
             End Select
         End If
