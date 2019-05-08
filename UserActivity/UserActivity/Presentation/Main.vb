@@ -53,8 +53,8 @@ Public Class Main
             kbHook = New KeyboardHook(dictionaryIni)
             mHook = New MouseHook(dictionaryIni)
             fHook = New FocusHook(dictionaryIni)
+            CheckHooks()
         End If
-        CheckHooks()
     End Sub
     'Commprueba que se hayan instalado correctamente los hooks'
     Private Sub CheckHooks()
