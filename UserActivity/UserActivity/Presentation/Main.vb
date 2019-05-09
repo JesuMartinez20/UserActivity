@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports System.Runtime.InteropServices
+Imports System.Text
 
 Public Class Main
     Private WithEvents kbHook As KeyboardHook
@@ -95,7 +96,7 @@ Public Class Main
                 'Se agrega el contador del cambio de foco'
                 dictionaryIni.Add("CounterFocus", ini.GetInteger("FOCO", "CounterFocus"))
             Else
-                Throw New Exception("No se puede abrir el archivo. Compruebe que la ruta del archivo es válida.")
+                Throw New Exception("No se puede abrir el archivo. Compruebe que la ruta del archivo .ini es válida.")
             End If
         Catch ex As Exception
             MessageBox.Show(ex.Message, "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning)
