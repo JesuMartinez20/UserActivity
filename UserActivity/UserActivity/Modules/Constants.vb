@@ -17,6 +17,7 @@
     Public Const VK_RCONTROL As Integer = &HA3
     Public Const VK_LMENU As Integer = &HA4
     Public Const VK_LSHIFT As Integer = &HA0
+    Public Const VK_RSHIFT As Integer = &HA1
     Public Const VK_INSERT As Integer = &H2D
     Public Const VK_TAB As Integer = &H9
     Public Const VK_C As Integer = &H43

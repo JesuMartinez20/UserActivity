@@ -76,7 +76,8 @@ Public Class KeyboardHook
             Or GetAsyncKeyState(VK_LMENU) And keyCode = VK_TAB Or GetAsyncKeyState(VK_LMENU) And keyCode = VK_F4 _
             Or keyCode = VK_LCONTROL Or keyCode = VK_RCONTROL Or keyCode = VK_LMENU Then
             'do nothing'
-        ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_V Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_V Or GetAsyncKeyState(VK_LSHIFT) And keyCode = VK_INSERT Then
+        ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_V Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_V Or
+            GetAsyncKeyState(VK_LSHIFT) And keyCode = VK_INSERT Or GetAsyncKeyState(VK_RSHIFT) And keyCode = VK_INSERT Then
             If Clipboard.ContainsText Or Clipboard.ContainsImage Then
                 action = SearchValue(_dictionary, "Paste")
                 focus = GetPathName()

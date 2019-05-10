@@ -140,8 +140,8 @@ Public Class Main
     Private Sub kbHook_KeyDown(ByVal typeAction As Integer, ByVal pathTitle As String) Handles kbHook.KeyDown
         Static focusKey As String
         If pathTitle <> focusKey And pathTitle <> explorer Then
-            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
-            'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "en App:" + pathTitle + "#" + user)
+            ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "#" + user)
+            'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "en App:" + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             lastAction = typeAction
             focusKey = pathTitle
@@ -153,8 +153,8 @@ Public Class Main
     Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.CombKey
         Static lastkey As Keys
         If vKey <> lastkey And pathTitle <> explorer Then
-            'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
-            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " [" + key.ToString + "+" + vKey.ToString + "] en App: " + pathTitle + "#" + user)
+            'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "#" + user)
+            ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + " [" + key.ToString + "+" + vKey.ToString + "] en App: " + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             lastAction = typeAction
             lastkey = vKey
@@ -166,8 +166,8 @@ Public Class Main
     Private Sub mHook_MouseWheel(ByVal typeAction As Integer, ByVal pathTitle As String) Handles mHook.MouseWheel
         Static focusWheel As String
         If pathTitle <> focusWheel And pathTitle <> explorer Then
-            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
-            'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + " en App:" + pathTitle + "#" + user)
+            ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "#" + user)
+            'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "#" + " en App:" + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             lastAction = typeAction
             focusWheel = pathTitle
@@ -186,22 +186,22 @@ Public Class Main
             'Si ya se ha registrado un foco determinado se busca en el diccionario de focos y se actualiza el foco'
             If dictionaryFocus.ContainsKey(pathTitle) Then
                 Dim focusRegistered As Integer = dictionaryFocus.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
-                'AddItemToList(Now.ToString + "#" + focusRegistered.ToString + " en App: " + pathTitle + "#" + user)
-                AddItemToList(Now.ToString + "#" + focusRegistered.ToString + "#" + user)
+                'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + focusRegistered.ToString + " en App: " + pathTitle + "#" + user)
+                AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + focusRegistered.ToString + "#" + user)
                 lastFocus = pathTitle
                 lastAction = focusRegistered
                 'Se inicializa el foco con el número correspondiente del archivo .ini'
             ElseIf counterFocusApp = counterLastFocus Then
-                AddItemToList(Now.ToString + "#" + counterFocusApp.ToString + "#" + user)
-                'AddItemToList(Now.ToString + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
+                AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + "#" + user)
+                'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
                 dictionaryFocus.Add(pathTitle, counterFocusApp)
                 counterFocusApp = counterLastFocus + 1 'de esta manera los eventos se registrarán de manera creciente'
                 lastFocus = pathTitle
                 counterLastFocus = counterFocusApp
                 lastAction = counterFocusApp
             Else 'En caso contrario se actualizan el foco y el contador, además de registrarse en el diccionario'
-                AddItemToList(Now.ToString + "#" + counterFocusApp.ToString + "#" + user)
-                'AddItemToList(Now.ToString + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
+                AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + "#" + user)
+                'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
                 dictionaryFocus.Add(pathTitle, counterFocusApp)
                 counterFocusApp = counterLastFocus + 1
                 lastFocus = pathTitle
@@ -217,8 +217,8 @@ Public Class Main
         Dim pathTitle As String = GetPathName()
         Dim typeAction As Integer = SearchValue(dictionaryIni, "Copy")
         If typeAction <> lastAction And pathTitle <> explorer Then
-            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
-            'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "en App: " + pathTitle + "#" + user)
+            ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "#" + user)
+            'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "en App: " + pathTitle + "#" + user)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             lastAction = typeAction
             lastOrigin = pathTitle
@@ -229,8 +229,8 @@ Public Class Main
 
     Private Sub PasteEvent(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.PasteEvent
         If pathTitle <> explorer Then
-            ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + "#" + user)
-            'ListBox1.Items.Add(Now.ToString + "#" + typeAction.ToString + " en App:" + pathTitle + "#" + user + "#" + "Origen: " + lastOrigin)
+            ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "#" + user)
+            'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + " en App:" + pathTitle + "#" + user + "#" + "Origen: " + lastOrigin)
             ListBox1.TopIndex = ListBox1.Items.Count - 1
             lastAction = typeAction
         Else
