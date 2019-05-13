@@ -23,23 +23,10 @@ Public Class Main
     Private nextClipViewer As IntPtr
     'Evento del Clipboard'
     Public Event ClipboardData(ByVal clipboardText As String)
-    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function FindWindow(
-     ByVal lpClassName As String,
-     ByVal lpWindowName As String) As IntPtr
-    End Function
-    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function FindWindowEx(ByVal parentHandle As IntPtr,
-                      ByVal childAfter As IntPtr,
-                      ByVal lclassName As String,
-                      ByVal windowTitle As String) As IntPtr
-    End Function
-    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function PostMessage(ByVal hWnd As IntPtr, ByVal Msg As UInteger, ByVal wParam As IntPtr, ByVal lParam As IntPtr) As Boolean
-    End Function
-
+    'Módulo que inicializa al formulario'
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        dictionaryIni = ReadIni()
+        ReadIni()
+        ReadFocusDict()
         StartHooks()
         StartClipboard()
     End Sub
@@ -77,12 +64,41 @@ Public Class Main
         Clipboard.Clear()
         nextClipViewer = SetClipboardViewer(Me.Handle)
     End Sub
-    'Función que devuelve un diccionario con el contenido del fichero .ini'
-    Private Function ReadIni()
-        Dim path = Application.StartupPath + "\config.ini"
-        CheckAndLoadFile(path)
-        Return dictionaryIni
-    End Function
+    'Método que devuelve un diccionario con el contenido del fichero .ini'
+    Private Sub ReadIni()
+        CheckAndLoadFile(pathIni)
+    End Sub
+    'Método encargado de leer el diccionario de focos registrados hasta el momento'
+    Private Sub ReadFocusDict()
+        Dim sLine As String = ""
+        Dim arrText As New ArrayList()
+        If File.Exists(pathFocusDict) Then
+            Dim sr As New System.IO.StreamReader(pathFocusDict)
+            Do
+                sLine = sr.ReadLine()
+                If Not sLine Is Nothing Then
+                    arrText.Add(sLine)
+                    GetFocusAndID(sLine)
+                End If
+            Loop Until sLine Is Nothing
+            sr.Close()
+            'si existe el archivo, recuperamos la última entrada registrada y la incrementamos en 1'
+            Dim kvp As KeyValuePair(Of String, Integer) = dictionaryFocus.Last
+            lastAction = kvp.Value + 1
+        Else 'en caso contrario la actualizamos a 0'
+            lastAction = 0
+        End If
+    End Sub
+    'Método encargado de almacenar cada línea del archivo FocusDictionary.txt en el dictionaryFocus (foco e identificador)'
+    Private Sub GetFocusAndID(ByVal line As String)
+        Dim intPos As Integer
+        Dim focus As String
+        Dim idFocus As String
+        intPos = InStr(1, line, "#") 'posicion de "#"
+        focus = Mid(line, 1, intPos - 1) 'Se extrae desde el inicio hasta la posicion de la coma -1 
+        idFocus = Mid(line, intPos + 1) 'Se extrae desde la posicion de la coma + 1 hasta el final
+        dictionaryFocus.Add(focus, Convert.ToInt32(idFocus))
+    End Sub
     'Este método se encarga de comprobar si existe el archivo y de crear un diccionario del archivo .ini'
     Private Sub CheckAndLoadFile(path As String)
         Try
@@ -177,36 +193,32 @@ Public Class Main
     End Sub
 
     Private Sub fHook_FocusRise(ByVal typeAction As Integer, ByVal pathTitle As String) Handles fHook.FocusRise
-        'Estas dos variables se encargan de contar los focos registrados'
-        Static counterFocusApp As Integer = typeAction
-        Static counterLastFocus As Integer = typeAction
+        'Esta variable se encarga de contar los focos registrados'
+        Dim counterFocusApp As Integer = typeAction
         ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         'Comparamos que el foco actual es diferente del foco más antiguo (lastfocus)'
         If lastFocus <> pathTitle And pathTitle <> explorer Then
-            'Si ya se ha registrado un foco determinado se busca en el diccionario de focos y se actualiza el foco'
+            'Si ya se ha registrado un foco determinado se busca en el diccionario de focos y se actualiza el foco actual'
             If dictionaryFocus.ContainsKey(pathTitle) Then
                 Dim focusRegistered As Integer = dictionaryFocus.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
                 'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + focusRegistered.ToString + " en App: " + pathTitle + "#" + user)
                 AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + focusRegistered.ToString + "#" + user)
                 lastFocus = pathTitle
-                lastAction = focusRegistered
-                'Se inicializa el foco con el número correspondiente del archivo .ini'
-            ElseIf counterFocusApp = counterLastFocus Then
+            ElseIf lastAction = 0 Then 'Si no existe el archivo FocusDictionary.txt, se inicializa el foco con el número correspondiente del archivo .ini'
                 AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + "#" + user)
                 'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
                 dictionaryFocus.Add(pathTitle, counterFocusApp)
-                counterFocusApp = counterLastFocus + 1 'de esta manera los eventos se registrarán de manera creciente'
+                SaveFocusDictionary(pathTitle, counterFocusApp)
                 lastFocus = pathTitle
-                counterLastFocus = counterFocusApp
-                lastAction = counterFocusApp
-            Else 'En caso contrario se actualizan el foco y el contador, además de registrarse en el diccionario'
+                lastAction = counterFocusApp + 1 'de esta manera se actualiza la última acción realizada'
+            Else 'Si el foco no está registrado, el identificador corresponderá al del último almacenado en FocusDictionary.txt'
+                counterFocusApp = lastAction
                 AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + "#" + user)
                 'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
                 dictionaryFocus.Add(pathTitle, counterFocusApp)
-                counterFocusApp = counterLastFocus + 1
+                SaveFocusDictionary(pathTitle, counterFocusApp)
                 lastFocus = pathTitle
-                counterLastFocus = counterFocusApp
-                lastAction = counterFocusApp
+                lastAction = lastAction + 1 'actualizamos la variable lastAction'
             End If
         Else
             'do nothing'
@@ -237,6 +249,19 @@ Public Class Main
             'do nothing'
         End If
     End Sub
+    'Este método se encarga de crear un archivo o añadir contendido, si ya existe, del diccionario de focos'
+    Private Sub SaveFocusDictionary(ByVal pathTitle As String, ByVal counterFocusApp As Integer)
+        'Si el archivo ya está creado, se añade el contenido'
+        If File.Exists(pathFocusDict) Then
+            Dim sw As New System.IO.StreamWriter(pathFocusDict, True)
+            sw.WriteLine(pathTitle + "#" + counterFocusApp.ToString)
+            sw.Close()
+        Else 'en caso contrario se crea e insertan los parámetros del método'
+            Dim sw As New System.IO.StreamWriter(pathFocusDict)
+            sw.WriteLine(pathTitle + "#" + counterFocusApp.ToString)
+            sw.Close()
+        End If
+    End Sub
 
     Private Sub UnregisterClipboardViewer()
         ChangeClipboardChain(Me.Handle, nextClipViewer)
@@ -257,15 +282,5 @@ Public Class Main
         Else
             ListBox1.Items.Add(item)
         End If
-    End Sub
-
-    Private Sub btnHook_Click(sender As Object, e As EventArgs) Handles btnHook.Click
-        Dim SendText As String
-        Dim notepad As IntPtr, editx As IntPtr
-
-        SendText = "Hello this will write to notepad!"
-        notepad = FindWindow("notepad", vbNullString)
-        editx = FindWindowEx(notepad, 0&, "edit", vbNullString)
-        Call SendMessage(editx, WM_SETTEXT, 0&, SendText)
     End Sub
 End Class
