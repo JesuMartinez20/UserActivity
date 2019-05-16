@@ -26,13 +26,13 @@ Public Class FicherosINI
         End Get
     End Property
     'Función para leer cadena de texto (string) de fichero INI'
-    Public Function GetString(ByVal sFileName As String, ByVal sSection As String, ByVal sKeyName As String, Optional ByVal sDefault As String = "") As String
+    Public Function GetString(ByVal sSection As String, ByVal sKeyName As String, Optional ByVal sDefault As String = "") As String
         Dim charCount As Integer
         Dim sRetVal As StringBuilder
         '
         sRetVal = New StringBuilder(256)
         '
-        charCount = GetPrivateProfileString(sSection, sKeyName, sDefault, sRetVal, sRetVal.Capacity, sFileName)
+        charCount = GetPrivateProfileString(sSection, sKeyName, sDefault, sRetVal, sRetVal.Capacity, strFilename)
         If charCount = 0 Then
             Return sDefault
         Else
