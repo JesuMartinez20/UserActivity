@@ -37,6 +37,4 @@
     'Notificaciones de Clipboard'
     Public Const WM_DRAWCLIPBOARD As Integer = 776
     Public Const WM_CHANGECBCHAIN As Integer = 781
-    Public Const WM_PASTE As Integer = &H302
-    Public Const WM_COPYDATA As Integer = 74
 End Module

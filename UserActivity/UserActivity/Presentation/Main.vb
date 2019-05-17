@@ -292,7 +292,7 @@ Public Class Main
             sw.Close()
         End If
     End Sub
-    '#################################################################################'
+#Region "Guardar los eventos en un fichero"
     Private Sub SaveEvents(ByVal action As Integer)
         'Si el archivo ya está creado, se añade el contenido'
         If File.Exists(pathEvents) Then
@@ -307,7 +307,7 @@ Public Class Main
     End Sub
     'Se encarga de guardar eventos'
     Private Sub SaveEventsAndFocusDict(ByVal pathTitle As String, ByVal counterFocusApp As Integer)
-        'SaveEvents(counterFocusApp)
+        SaveEvents(counterFocusApp)
         dictionaryFocus.Add(pathTitle, counterFocusApp)
         SaveFocusDictionary(pathTitle, counterFocusApp)
     End Sub
@@ -320,7 +320,7 @@ Public Class Main
     Private Sub SaveTest(ByVal action As Integer)
         File.AppendAllText(pathtest, action.ToString + " -1 ")
     End Sub
-    '#################################################################################'
+#End Region
     Private Sub UnregisterClipboardViewer()
         ChangeClipboardChain(Me.Handle, nextClipViewer)
     End Sub

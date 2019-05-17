@@ -1,20 +1,7 @@
-﻿Imports System.Runtime.InteropServices
-Imports System.Text
+﻿Imports System.Text
 
 Public Class FicherosINI
-     Private strFilename As String
-    ' Funciones del API de Windows para ficheros INI
-    Private Declare Ansi Function WritePrivateProfileString _
-      Lib "kernel32.dll" Alias "WritePrivateProfileStringA" _
-      (ByVal lpApplicationName As String,
-      ByVal lpKeyName As String, ByVal lpString As String,
-      ByVal lpFileName As String) As Integer
-
-    Private Declare Ansi Function FlushPrivateProfileString _
-      Lib "kernel32.dll" Alias "WritePrivateProfileStringA" _
-      (ByVal lpApplicationName As Integer,
-      ByVal lpKeyName As Integer, ByVal lpString As Integer,
-      ByVal lpFileName As String) As Integer
+    Private strFilename As String
     ' Constructor, para aceptar el fichero INI'
     Public Sub New(ByVal Filename As String)
         strFilename = Filename
@@ -70,25 +57,4 @@ Public Class FicherosINI
     Public Function GetBoolean(ByVal Section As String, ByVal Key As String, ByVal [Default] As Boolean) As Boolean
         Return (GetPrivateProfileInt(Section, Key, CInt([Default]), strFilename) = 1)
     End Function
-    'Función para escribir valor de cadena (string) en fichero INI
-    Public Sub WriteString(ByVal Section As String, ByVal Key As String, ByVal Value As String)
-        WritePrivateProfileString(Section, Key, Value, strFilename)
-        Flush()
-    End Sub
-    'Función para escribir valor numérico en fichero INI
-    Public Sub WriteInteger(ByVal Section As String, ByVal Key As String, ByVal Value As Integer)
-        ' Writes an integer to your INI file
-        WriteString(Section, Key, CStr(Value))
-        Flush()
-    End Sub
-    'Función para escribir valor booleano en fichero INI
-    Public Sub WriteBoolean(ByVal Section As String, ByVal Key As String, ByVal Value As Boolean)
-        ' Writes a boolean to your INI file
-        WriteString(Section, Key, CStr(Math.Abs(CInt(Value))))
-        Flush()
-    End Sub
-    'Guarda los cambios de la caché en fichero INI
-    Private Sub Flush()
-        FlushPrivateProfileString(0, 0, 0, strFilename)
-    End Sub
 End Class
