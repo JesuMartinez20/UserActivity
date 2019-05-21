@@ -43,7 +43,7 @@ Partial Class Main
         Me.Controls.Add(Me.ListBox1)
         Me.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.Name = "Main"
-        Me.Text = "Main"
+        Me.Text = "UserActivity"
         Me.ResumeLayout(False)
 
     End Sub

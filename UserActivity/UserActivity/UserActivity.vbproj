@@ -6,11 +6,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F3482840-9284-4697-A27D-BA4B3AA74A68}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <StartupObject>UserActivity.My.MyApplication</StartupObject>
+    <StartupObject>UserActivity.Main</StartupObject>
     <RootNamespace>UserActivity</RootNamespace>
     <AssemblyName>UserActivity</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <MyType>WindowsForms</MyType>
+    <MyType>Console</MyType>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -77,13 +77,18 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MySql.Data, Version=8.0.16.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\MySQL\Connector NET 8.0\Assemblies\v4.5.2\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -105,10 +110,10 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationEvents.vb" />
-    <Compile Include="Domain\FocusHook.vb" />
-    <Compile Include="Domain\KeyboardHook.vb" />
-    <Compile Include="Domain\MouseHook.vb" />
+    <Compile Include="Domain\TypeScrollEvent.vb" />
+    <Compile Include="Hooks\FocusHook.vb" />
+    <Compile Include="Hooks\KeyboardHook.vb" />
+    <Compile Include="Hooks\MouseHook.vb" />
     <Compile Include="Modules\CommonLibraries.vb" />
     <Compile Include="Modules\CommonMethods.vb" />
     <Compile Include="Modules\Constants.vb" />
@@ -128,6 +133,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Persistence\AgentBD.vb" />
+    <Compile Include="Persistence\DAOTSEvent.vb" />
     <Compile Include="Presentation\FicherosINI.vb" />
     <Compile Include="Presentation\Main.Designer.vb">
       <DependentUpon>Main.vb</DependentUpon>
@@ -170,6 +177,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Ficheros\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>
