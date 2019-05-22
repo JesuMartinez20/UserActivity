@@ -110,6 +110,10 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Domain\Action.vb" />
+    <Compile Include="Domain\FocusCatalog.vb" />
+    <Compile Include="Domain\FocusEvent.vb" />
+    <Compile Include="Domain\PasteEvent.vb" />
     <Compile Include="Domain\TypeScrollEvent.vb" />
     <Compile Include="Hooks\FocusHook.vb" />
     <Compile Include="Hooks\KeyboardHook.vb" />
@@ -134,7 +138,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Persistence\AgentBD.vb" />
-    <Compile Include="Persistence\DAOTSEvent.vb" />
+    <Compile Include="Persistence\DAOAction.vb" />
+    <Compile Include="Persistence\DAOEvent.vb" />
+    <Compile Include="Persistence\DAOFocus.vb" />
     <Compile Include="Presentation\FicherosINI.vb" />
     <Compile Include="Presentation\Main.Designer.vb">
       <DependentUpon>Main.vb</DependentUpon>

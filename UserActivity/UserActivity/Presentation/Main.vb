@@ -4,7 +4,7 @@ Public Class Main
     Private WithEvents kbHook As KeyboardHook
     Private WithEvents mHook As MouseHook
     Private WithEvents fHook As FocusHook
-    Private conexionBD As AgentBD
+    'Private conexionBD As AgentBD
     Private flagBD As Boolean
     'Esta variable es la encargada de controlar que el foco sea el mismo y no se repitan mismas acciones'
     Private lastFocus As String
@@ -81,6 +81,7 @@ Public Class Main
                 'Se agrega el contador del cambio de foco'
                 dictionaryIni.Add("CounterFocus", ini.GetInteger("FOCO", "CounterFocus"))
                 ReadBD(ini)
+                'ReadPathLogAndFocusDict(ini)
             Else
                 Throw New Exception("No se puede abrir el archivo." & vbNewLine &
                                     "Compruebe que exista el archivo configBD.ini.")
@@ -92,6 +93,7 @@ Public Class Main
     'Se leen los parámtetros necesarios para establecer la conexión con la BD'
     Private Sub ReadBD(ByRef ini As FicherosINI)
         Dim arrayBD() As String = ini.GetSection("BD")
+        Dim conexionBD As AgentBD
         Try
             conexionBD = New AgentBD(arrayBD(1), arrayBD(3), arrayBD(5), arrayBD(7))
             flagBD = True
@@ -102,7 +104,7 @@ Public Class Main
         End Try
     End Sub
 #End Region
-    'Método encargado de leer el diccionario de focos registrados hasta el momento'
+    'Método encargado de leer, si existe, el diccionario de focos registrados hasta el momento'
     Private Sub ReadFocusDict()
         Dim sLine As String = ""
         Dim sr As StreamReader
@@ -143,16 +145,22 @@ Public Class Main
     Private Sub kbHook_KeyDown(ByVal typeAction As Integer, ByVal pathTitle As String) Handles kbHook.KeyDown
         Static focusKey As String
         Dim tsEvent As TypeScrollEvent
+        Dim action As Action
         If pathTitle <> focusKey And pathTitle.ToLower <> explorer.ToLower Then
-            ListBox1.Items.Add(typeAction.ToString + "#" + DateTime.Now.ToString + "#" + userName)
+            'ListBox1.Items.Add(typeAction.ToString + "#" + DateTime.Now.ToString + "#" + userName)
             'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "en App:" + pathTitle + "#" + user)
-            ListBox1.TopIndex = ListBox1.Items.Count - 1
+            'ListBox1.TopIndex = ListBox1.Items.Count - 1
+            action = New Action
+            action.IdAction = typeAction
+            action.Action = SearchKey(dictionaryIni, typeAction)
             tsEvent = New TypeScrollEvent
             tsEvent.Fecha = Now.ToString("yyyy-MM-dd HH:mm:ss")
             tsEvent.IdAction = typeAction
-            tsEvent.AppOrigin = pathTitle
-            'tsEvent.InsertAction(typeAction)
+            'De esta manera se inserta correctamente el path en la base de datos'
+            tsEvent.AppOrigin = pathTitle.Replace("\", "\\")
+            tsEvent.User = userName
             Try
+                action.InsertAction()
                 tsEvent.InsertEvent()
             Catch ex As Exception
                 MsgBox(ex.Message)
@@ -168,9 +176,9 @@ Public Class Main
     Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.CombKey
         Static lastkey As Keys
         If vKey <> lastkey And pathTitle.ToLower <> explorer.ToLower Then
-            ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
+            'ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
             'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + " [" + key.ToString + "+" + vKey.ToString + "] en App: " + pathTitle + "#" + user)
-            ListBox1.TopIndex = ListBox1.Items.Count - 1
+            'ListBox1.TopIndex = ListBox1.Items.Count - 1
             'SaveEvents(typeAction)
             lastAction = typeAction
             lastkey = vKey
@@ -182,9 +190,9 @@ Public Class Main
     Private Sub mHook_MouseWheel(ByVal typeAction As Integer, ByVal pathTitle As String) Handles mHook.MouseWheel
         Static focusWheel As String
         If pathTitle <> focusWheel And pathTitle.ToLower <> explorer.ToLower Then
-            ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
+            'ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
             'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "#" + " en App:" + pathTitle + "#" + user)
-            ListBox1.TopIndex = ListBox1.Items.Count - 1
+            'ListBox1.TopIndex = ListBox1.Items.Count - 1
             'SaveEvents(typeAction)
             lastAction = typeAction
             focusWheel = pathTitle
@@ -202,19 +210,19 @@ Public Class Main
             'Si ya se ha registrado un foco determinado se busca en el diccionario de focos y se actualiza el foco actual'
             If dictionaryFocus.ContainsKey(pathTitle) Then
                 Dim focusRegistered As Integer = dictionaryFocus.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
-                AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + focusRegistered.ToString + " en App: " + pathTitle + "#" + userName)
+                'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + focusRegistered.ToString + " en App: " + pathTitle + "#" + userName)
                 'AddItemToList(focusRegistered.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + user)
                 'SaveEvents(focusRegistered)
                 UpdateFocusAndAction(pathTitle, focusRegistered)
             ElseIf lastIDFocus = 0 Then 'Si no existe el archivo FocusDictionary.txt, se inicializa el foco con el número correspondiente del archivo .ini'
-                AddItemToList(counterFocusApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
+                'AddItemToList(counterFocusApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
                 'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
                 'SaveEventsAndFocusDict(pathTitle, counterFocusApp)
                 UpdateFocusAndAction(pathTitle, counterFocusApp)
                 lastIDFocus = counterFocusApp + 1 'de esta manera se actualiza el último foco registrado'
             Else 'Si el foco no está registrado, el identificador corresponderá al del último almacenado en FocusDictionary.txt'
                 counterFocusApp = lastIDFocus
-                AddItemToList(counterFocusApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
+                'AddItemToList(counterFocusApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
                 'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
                 'SaveEventsAndFocusDict(pathTitle, counterFocusApp)
                 UpdateFocusAndAction(pathTitle, counterFocusApp)
@@ -267,7 +275,7 @@ Public Class Main
         Dim pathTitle As String = GetPathName()
         Dim typeAction As Integer = SearchValue(dictionaryIni, "Copy")
         If typeAction <> lastAction And pathTitle.ToLower <> explorer.ToLower Then
-            ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
+            'ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
             'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "en App: " + pathTitle + "#" + user)
             'ListBox1.TopIndex = ListBox1.Items.Count - 1
             'SaveEvents(typeAction)
@@ -280,7 +288,7 @@ Public Class Main
 
     Private Sub PasteEvent(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.PasteEvent
         If pathTitle.ToLower <> explorer.ToLower Then
-            ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
+            'ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
             'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + " en App:" + pathTitle + "#" + user + "#" + "Origen: " + lastOrigin)
             'ListBox1.TopIndex = ListBox1.Items.Count - 1
             'SaveEvents(typeAction)
@@ -310,7 +318,7 @@ Public Class Main
             ListBox1.Items.Add(item)
         End If
     End Sub
-#Region "Establecer y guardar tanto los eventos como el catálogo de focos en los ficheros correspondientes"
+#Region "LECTURA SECCIÓN FICHERO Y ALMACENAMIENTO EN FICHERO DE LOG Y CATÁLOGO FOCOS"
     'Establece la ruta del archivo log y del diccionario de focos'
     Private Sub ReadPathLogAndFocusDict(ByRef ini As FicherosINI)
         Dim pathLog As String = ini.GetString("FICHERO", "Log")
@@ -359,11 +367,11 @@ Public Class Main
         'Si el archivo ya está creado, se añade el contenido'
         If File.Exists(pathEvents) Then
             Dim sw As New System.IO.StreamWriter(pathEvents, True)
-            sw.WriteLine(action.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
+            sw.WriteLine(action.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
             sw.Close()
         Else 'en caso contrario se crea e insertan los parámetros del método'
             Dim sw As New System.IO.StreamWriter(pathEvents)
-            sw.WriteLine(action.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
+            sw.WriteLine(action.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
             sw.Close()
         End If
     End Sub

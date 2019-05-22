@@ -12,6 +12,11 @@ Public Class AgentBD
         Dim com As New MySqlCommand(sql, conexion)
         Return com.ExecuteNonQuery()
     End Function
+
+    Public Shared Function Read(ByVal sql As String) As MySqlDataReader
+        Dim com As New MySqlCommand(sql, conexion)
+        Return com.ExecuteReader()
+    End Function
     'Método para cerrar la bd'
     Public Shared Sub CloseBD()
         conexion.Close()

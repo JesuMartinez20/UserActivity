@@ -5,10 +5,10 @@ Public Class TypeScrollEvent
     Private _idAction As Integer
     Private _appOrigin As String
     Private _user As String
-    Private _daoTSEvent As DAOTSEvent
+    Private _daoTSEvent As DAOEvent
 
     Public Sub New()
-        Me._daoTSEvent = New DAOTSEvent
+        Me._daoTSEvent = New DAOEvent
     End Sub
 #Region "GETTER Y SETTER"
     Public Property Fecha As String
@@ -47,20 +47,16 @@ Public Class TypeScrollEvent
         End Set
     End Property
 
-    Public Property DaoTSEvent As DAOTSEvent
+    Public Property DaoTSEvent As DAOEvent
         Get
             Return _daoTSEvent
         End Get
-        Set(value As DAOTSEvent)
+        Set(value As DAOEvent)
             _daoTSEvent = value
         End Set
     End Property
 #End Region
     Public Sub InsertEvent()
-        Me._daoTSEvent.InsertDAOEvent(Me)
-    End Sub
-
-    Public Sub InsertAction(ByVal action As String)
-        Me._daoTSEvent.InsertDAOAction(Me, action)
+        Me._daoTSEvent.InsertTSEvent(Me)
     End Sub
 End Class
