@@ -1,5 +1,14 @@
-﻿Public Class DAOEvent
-    Public Function InsertTSEvent(ByVal tsEvent As TypeScrollEvent) As Integer
-        Return AgentBD.Insert("INSERT INTO evento_type_scroll (fecha,id_accion,app_origen,usuario) VALUES('" & tsEvent.Fecha & "'," & tsEvent.IdAction & ",'" & tsEvent.AppOrigin & "','" & tsEvent.User & "');")
+﻿Imports UserActivity
+
+Public Class DAOEvent
+    Public Function InsertEvent(ByVal ev As GeneralEvent) As Integer
+        Return AgentBD.Insert("INSERT INTO eveno VALUES" &
+            "('" & ev.Fecha & "'," & ev.IdAction & ",'" & ev.AppOrigin & "','" & ev.User & "');")
+    End Function
+
+    Public Function InsertPasteEvent(ByVal pasteEv As PasteEvent) As Integer
+        Return AgentBD.Insert("INSERT INTO evento_paste VALUES" &
+                              "('" & pasteEv.Fecha & "'," & pasteEv.IdAction & ",'" & pasteEv.AppOrigin & "'," &
+                              "'" & pasteEv.AppDestiny & "','" & pasteEv.User & "');")
     End Function
 End Class

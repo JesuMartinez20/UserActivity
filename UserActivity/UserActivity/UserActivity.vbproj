@@ -114,7 +114,7 @@
     <Compile Include="Domain\FocusCatalog.vb" />
     <Compile Include="Domain\FocusEvent.vb" />
     <Compile Include="Domain\PasteEvent.vb" />
-    <Compile Include="Domain\TypeScrollEvent.vb" />
+    <Compile Include="Domain\GeneralEvent.vb" />
     <Compile Include="Hooks\FocusHook.vb" />
     <Compile Include="Hooks\KeyboardHook.vb" />
     <Compile Include="Hooks\MouseHook.vb" />

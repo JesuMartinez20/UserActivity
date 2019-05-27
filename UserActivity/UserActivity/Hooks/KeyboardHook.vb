@@ -49,8 +49,8 @@ Public Class KeyboardHook
     End Enum
     'Se declaran los eventos de teclado'
     Public Event KeyDown(ByVal action As Integer, ByVal focus As String)
-    Public Event CombKey(ByVal action As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal focus As String)
-    Public Event PasteEvent(ByVal action As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal focus As String)
+    Public Event CombKey(ByVal action As Integer, ByVal vKey As Keys, ByVal focus As String)
+    Public Event PasteEvent(ByVal action As Integer, ByVal focus As String)
     'Public Event CombKey(ByVal action As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal focus As String)
     'Esta función se encarga de mostrar los eventos elegidos'
     Private Function KeyboardProc(nCode As Integer, wParam As IntPtr, lParam As IntPtr) As Integer
@@ -81,21 +81,21 @@ Public Class KeyboardHook
             If Clipboard.ContainsText Or Clipboard.ContainsImage Then
                 action = SearchValue(_dictionary, "Paste")
                 focus = GetPathName()
-                RaiseEvent PasteEvent(action, VK_LCONTROL, keyCode, focus)
+                RaiseEvent PasteEvent(action, focus)
             End If
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_S Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_S Then
                 action = SearchValue(_dictionary, "CombCtrlS")
                 focus = GetPathName()
-                RaiseEvent CombKey(action, VK_LCONTROL, keyCode, focus)
-            ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_G Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_G Then
+            RaiseEvent CombKey(action, keyCode, focus)
+        ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_G Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_G Then
                 action = SearchValue(_dictionary, "CombCtrlG")
                 focus = GetPathName()
-                RaiseEvent CombKey(action, VK_LCONTROL, keyCode, focus)
-            ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_F Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_F Then
+            RaiseEvent CombKey(action, keyCode, focus)
+        ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_F Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_F Then
                 action = SearchValue(_dictionary, "CombCtrlF")
                 focus = GetPathName()
-                RaiseEvent CombKey(action, VK_LCONTROL, keyCode, focus)
-            Else
+            RaiseEvent CombKey(action, keyCode, focus)
+        Else
                 focus = GetPathName()
             action = SearchValue(_dictionary, "Type")
             RaiseEvent KeyDown(action, focus)

@@ -5,7 +5,7 @@ Public Class Main
     Private WithEvents mHook As MouseHook
     Private WithEvents fHook As FocusHook
     'Private conexionBD As AgentBD
-    Private flagBD As Boolean
+    Private flagBD As Boolean = True
     'Esta variable es la encargada de controlar que el foco sea el mismo y no se repitan mismas acciones'
     Private lastFocus As String
     'Esta variable se encarga de controlar la última acción registrada'
@@ -27,7 +27,7 @@ Public Class Main
     'Módulo que inicializa al formulario'
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ReadIni()
-        ReadFocusDict()
+        'ReadFocusDict()
         StartHooks()
         StartClipboard()
     End Sub
@@ -37,7 +37,7 @@ Public Class Main
         'Se inicializa el foco principal de la aplicación'
         lastFocus = GetPathName()
         'diccionario vacio significa que el archivo .ini no se ha encontrado'
-        If dictionaryIni.Count = 0 Then
+        If dictionaryIni.Count = 0 Or flagBD = False Then
             Application.Exit()
         Else
             kbHook = New KeyboardHook(dictionaryIni)
@@ -82,8 +82,8 @@ Public Class Main
                 dictionaryIni.Add("InitActivaApp", Convert.ToInt32(arrayEvents.Last) + 1)
                 'Se agrega el contador del cambio de foco'
                 dictionaryIni.Add("CounterFocus", ini.GetInteger("FOCO", "CounterFocus"))
-                'ReadBD(ini)
-                ReadPathLogAndFocusDict(ini)
+                ReadBD(ini)
+                'ReadPathLogAndFocusDict(ini)
             Else
                 Throw New Exception("No se puede abrir el archivo." & vbNewLine &
                                     "Compruebe que exista el archivo configBD.ini.")
@@ -98,7 +98,6 @@ Public Class Main
         Dim conexionBD As AgentBD
         Try
             conexionBD = New AgentBD(arrayBD(1), arrayBD(3), arrayBD(5), arrayBD(7))
-            flagBD = True
         Catch ex As Exception
             MessageBox.Show("No se ha podido conectar con la base de datos." & vbNewLine &
                             "Compruebe los parámetros en el archivo configBD.ini", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -106,68 +105,20 @@ Public Class Main
         End Try
     End Sub
 #End Region
-    'Método encargado de leer, si existe, el diccionario de focos registrados hasta el momento'
-    Private Sub ReadFocusDict()
-        Dim sLine As String = ""
-        Dim sr As StreamReader
-        If File.Exists(pathFocusDict) Then
-            sr = New StreamReader(pathFocusDict)
-            While Not sr.EndOfStream
-                sLine = sr.ReadLine()
-                If Not sLine Is Nothing Then
-                    GetFocusAndID(sLine)
-                End If
-            End While
-            sr.Close()
-            'si contiene datos el archivo, recuperamos la última entrada registrada y la incrementamos en 1'
-            If File.ReadAllLines(pathFocusDict).Length <> 0 Then
-                Dim kvp As KeyValuePair(Of String, Integer) = dictionaryFocus.Last
-                lastIDFocus = kvp.Value + 1
-            End If
-        Else 'en caso contrario la actualizamos a 0'
-            lastIDFocus = 0
-        End If
-    End Sub
-    'Método encargado de almacenar cada línea del archivo FocusDictionary.txt en el dictionaryFocus (foco e identificador)'
-    Private Sub GetFocusAndID(ByVal line As String)
-        Dim intPos As Integer
-        Dim focus As String
-        Dim idFocus As String
-        intPos = InStr(1, line, "#") 'posicion de "#"
-        'Si intPos es mayor que 0 significa que no se ha interpretrado como valor de la línea: ""
-        If intPos > 0 Then
-            focus = Mid(line, 1, intPos - 1) 'Se extrae desde el inicio hasta la posicion de la coma -1 
-            idFocus = Mid(line, intPos + 1) 'Se extrae desde la posicion de la coma + 1 hasta el final
-            dictionaryFocus.Add(focus, Convert.ToInt32(idFocus))
-        Else
-            'do nothing'
-        End If
-    End Sub
 #Region "EVENTOS"
     Private Sub kbHook_KeyDown(ByVal typeAction As Integer, ByVal pathTitle As String) Handles kbHook.KeyDown
         Static focusKey As String
-        'Dim tsEvent As TypeScrollEvent
-        'Dim action As Action
+        Dim ev As GeneralEvent
+        Dim action As Action
         If pathTitle <> focusKey And pathTitle.ToLower <> explorer.ToLower Then
             'ListBox1.Items.Add(typeAction.ToString + "#" + DateTime.Now.ToString + "#" + userName)
             'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "en App:" + pathTitle + "#" + user)
             'ListBox1.TopIndex = ListBox1.Items.Count - 1
-            'action = New Action
-            'action.IdAction = typeAction
-            'action.Action = SearchKey(dictionaryIni, typeAction)
-            'tsEvent = New TypeScrollEvent
-            'tsEvent.Fecha = Now.ToString("yyyy-MM-dd HH:mm:ss")
-            'tsEvent.IdAction = typeAction
-            'De esta manera se inserta correctamente el path en la base de datos'
-            'tsEvent.AppOrigin = pathTitle.Replace("\", "\\")
-            'tsEvent.User = userName
-            'Try
-            'action.InsertAction()
-            'tsEvent.InsertEvent()
-            'Catch ex As Exception
-            'MsgBox(ex.Message)
-            'End Try
-            SaveEvents(typeAction)
+            action = FillAction(typeAction)
+            ev = FillEvent(typeAction, pathTitle)
+            ReadActions(action)
+            InsertEventAndAction(ev, action)
+            'SaveEvents(typeAction)
             lastAction = typeAction
             focusKey = pathTitle
         Else
@@ -175,13 +126,19 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.CombKey
+    Private Sub kbHook_CombKey(ByVal typeAction As Integer, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.CombKey
         Static lastkey As Keys
+        Dim action As Action
+        Dim ev As GeneralEvent
         If vKey <> lastkey And pathTitle <> explorer Then
             'ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
             'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + " [" + key.ToString + "+" + vKey.ToString + "] en App: " + pathTitle + "#" + user)
             'ListBox1.TopIndex = ListBox1.Items.Count - 1
-            SaveEvents(typeAction)
+            action = FillAction(typeAction)
+            ev = FillEvent(typeAction, pathTitle)
+            ReadActions(action)
+            InsertEventAndAction(ev, action)
+            'SaveEvents(typeAction)
             lastAction = typeAction
             lastkey = vKey
         Else
@@ -191,11 +148,17 @@ Public Class Main
 
     Private Sub mHook_MouseWheel(ByVal typeAction As Integer, ByVal pathTitle As String) Handles mHook.MouseWheel
         Static focusWheel As String
+        Dim action As Action
+        Dim ev As GeneralEvent
         If pathTitle <> focusWheel And pathTitle <> explorer Then
             'ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
             'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "#" + " en App:" + pathTitle + "#" + user)
             'ListBox1.TopIndex = ListBox1.Items.Count - 1
-            SaveEvents(typeAction)
+            action = FillAction(typeAction)
+            ev = FillEvent(typeAction, pathTitle)
+            ReadActions(action)
+            InsertEventAndAction(ev, action)
+            'SaveEvents(typeAction)
             lastAction = typeAction
             focusWheel = pathTitle
         Else
@@ -206,7 +169,6 @@ Public Class Main
     Private Sub fHook_FocusRise(ByVal typeAction As Integer, ByVal pathTitle As String) Handles fHook.FocusRise
         'Esta variable se encarga de contar los focos registrados'
         Dim counterFocusApp As Integer = typeAction
-        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         'Comparamos que el foco actual es diferente del foco más antiguo (lastfocus)'
         If lastFocus <> pathTitle And pathTitle <> explorer Then
             'Si ya se ha registrado un foco determinado se busca en el diccionario de focos y se actualiza el foco actual'
@@ -214,19 +176,19 @@ Public Class Main
                 Dim focusRegistered As Integer = dictionaryFocus.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
                 'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + focusRegistered.ToString + " en App: " + pathTitle + "#" + userName)
                 'AddItemToList(focusRegistered.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + user)
-                SaveEvents(focusRegistered)
+                'SaveEvents(focusRegistered)
                 UpdateFocusAndAction(pathTitle, focusRegistered)
             ElseIf lastIDFocus = 0 Then 'Si no existe el archivo FocusDictionary.txt, se inicializa el foco con el número correspondiente del archivo .ini'
                 'AddItemToList(counterFocusApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
                 'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
-                SaveEventsAndFocusDict(pathTitle, counterFocusApp)
+                'SaveEventsAndFocusDict(pathTitle, counterFocusApp)
                 UpdateFocusAndAction(pathTitle, counterFocusApp)
                 lastIDFocus = counterFocusApp + 1 'de esta manera se actualiza el último foco registrado'
             Else 'Si el foco no está registrado, el identificador corresponderá al del último almacenado en FocusDictionary.txt'
                 counterFocusApp = lastIDFocus
                 'AddItemToList(counterFocusApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
                 'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
-                SaveEventsAndFocusDict(pathTitle, counterFocusApp)
+                'SaveEventsAndFocusDict(pathTitle, counterFocusApp)
                 UpdateFocusAndAction(pathTitle, counterFocusApp)
                 lastIDFocus = lastIDFocus + 1
             End If
@@ -276,11 +238,17 @@ Public Class Main
     Private Sub ClipboardEvent() Handles Me.ClipboardData
         Dim pathTitle As String = GetPathName()
         Dim typeAction As Integer = SearchValue(dictionaryIni, "Copy")
+        Dim action As Action
+        Dim ev As GeneralEvent
         If typeAction <> lastAction And pathTitle <> explorer Then
             'ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
             'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + "en App: " + pathTitle + "#" + user)
             'ListBox1.TopIndex = ListBox1.Items.Count - 1
-            SaveEvents(typeAction)
+            action = FillAction(typeAction)
+            ev = FillEvent(typeAction, pathTitle)
+            ReadActions(action)
+            InsertEventAndAction(ev, action)
+            'SaveEvents(typeAction)
             lastAction = typeAction
             lastOrigin = pathTitle
         Else
@@ -288,15 +256,100 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub PasteEvent(ByVal typeAction As Integer, ByVal key As Keys, ByVal vKey As Keys, ByVal pathTitle As String) Handles kbHook.PasteEvent
+    Private Sub PasteEvent(ByVal typeAction As Integer, ByVal pathTitle As String) Handles kbHook.PasteEvent
+        Dim action As Action
+        Dim pasteEv As PasteEvent
         If pathTitle <> explorer Then
             'ListBox1.Items.Add(typeAction.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)
             'ListBox1.Items.Add(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + typeAction.ToString + " en App:" + pathTitle + "#" + user + "#" + "Origen: " + lastOrigin)
             'ListBox1.TopIndex = ListBox1.Items.Count - 1
-            SaveEvents(typeAction)
+            action = FillAction(typeAction)
+            pasteEv = FillPasteEvent(typeAction, pathTitle, lastOrigin)
+            ReadActions(action)
+            InsertPasteEventAndAction(pasteEv, action)
+            'SaveEvents(typeAction)
             lastAction = typeAction
         Else
             'do nothing'
+        End If
+    End Sub
+#End Region
+#Region "CRUD Y MÉTODOS NECESARIOS PARA LA CORRECTA INTERACCIÓN CON LA BASE DE DATOS"
+    'Se encarga de leer la tabla acciones en la base de datos y guardar los ID's en una lista'
+    Private Sub ReadActions(action As Action)
+        Try
+            action.Read()
+        Catch ex As Exception
+            MsgBox(ex.StackTrace)
+            Application.Exit()
+        End Try
+    End Sub
+
+    Private Sub InsertEventAndAction(ev As GeneralEvent, action As Action)
+        'Si el id_accion del evento existe en la tabla acciones, sólo se inserta el evento'
+        If action.DaoAction.ActionsList.Contains(ev.IdAction) Then
+            Try
+                ev.InsertEvent()
+            Catch ex As Exception
+                MsgBox(ex.Message)
+                Application.Exit()
+            End Try
+        Else 'Caso contrario se inserta tanto la acción como el evento'
+            Try
+                action.InsertAction()
+                ev.InsertEvent()
+            Catch ex As Exception
+                MsgBox(ex.Message)
+                Application.Exit()
+            End Try
+        End If
+    End Sub
+    'Devuelve un objeto completo de tipo Action'
+    Private Function FillAction(typeAction As Integer) As Action
+        Dim action As Action = New Action
+        action.IdAction = typeAction
+        action.Action = SearchKey(dictionaryIni, typeAction)
+        Return action
+    End Function
+    'Devuelve un evento completo de tipo: type,scroll y combkey'
+    Private Function FillEvent(typeAction As Integer, pathTitle As String) As GeneralEvent
+        Dim ev As GeneralEvent = New GeneralEvent
+        ev.Fecha = Now.ToString("yyyy-MM-dd HH:mm:ss")
+        ev.IdAction = typeAction
+        'De esta manera se inserta correctamente el path en la base de datos'
+        ev.AppOrigin = pathTitle.Replace("\", "\\")
+        ev.User = userName
+        Return ev
+    End Function
+    'Devuelve un evento completo de tipo paste'
+    Private Function FillPasteEvent(typeAction As Integer, destiny As String, origin As String) As PasteEvent
+        Dim pasteEv As PasteEvent = New PasteEvent
+        pasteEv.Fecha = Now.ToString("yyyy-MM-dd HH:mm:ss")
+        pasteEv.IdAction = typeAction
+        'De esta manera se inserta correctamente el path en la base de datos'
+        pasteEv.AppOrigin = origin.Replace("\", "\\")
+        pasteEv.AppDestiny = destiny.Replace("\", "\\")
+        pasteEv.User = userName
+        Return pasteEv
+    End Function
+
+    Private Sub InsertPasteEventAndAction(pasteEV As PasteEvent, action As Action)
+        'Si el id_accion del evento existe en la tabla acciones, sólo se inserta el evento'
+        If action.DaoAction.ActionsList.Contains(pasteEV.IdAction) Then
+            Try
+                pasteEV.InsertPasteEvent()
+            Catch ex As Exception
+                MsgBox(ex.Message)
+                Application.Exit()
+            End Try
+        Else 'Caso contrario se inserta tanto la acción como el evento'
+            Try
+                action.InsertAction()
+                pasteEV.InsertPasteEvent()
+            Catch ex As Exception
+                MsgBox(ex.Message)
+                Application.Exit()
+            End Try
         End If
     End Sub
 #End Region
@@ -311,6 +364,7 @@ Public Class Main
             Debug.WriteLine(ThreadAbortException.Message)
         End Try
         UnregisterClipboardViewer()
+        AgentBD.CloseBD()
     End Sub
     'Método que se encarga de capturar el control del hilo para poder modificar la lista de otro proceso'
     Public Sub AddItemToList(ByVal item As String)
@@ -320,7 +374,44 @@ Public Class Main
             ListBox1.Items.Add(item)
         End If
     End Sub
-#Region "LECTURA SECCIÓN FICHERO Y ALMACENAMIENTO EN FICHERO DE LOG Y CATÁLOGO FOCOS"
+#Region "LECTURA FICHERO Y ALMACENAMIENTO EN FICHERO DE LOG Y CATÁLOGO FOCOS"
+    'Método encargado de leer, si existe, el diccionario de focos registrados hasta el momento'
+    Private Sub ReadFocusDict()
+        Dim sLine As String = ""
+        Dim sr As StreamReader
+        If File.Exists(pathFocusDict) Then
+            sr = New StreamReader(pathFocusDict)
+            While Not sr.EndOfStream
+                sLine = sr.ReadLine()
+                If Not sLine Is Nothing Then
+                    GetFocusAndID(sLine)
+                End If
+            End While
+            sr.Close()
+            'si contiene datos el archivo, recuperamos la última entrada registrada y la incrementamos en 1'
+            If File.ReadAllLines(pathFocusDict).Length <> 0 Then
+                Dim kvp As KeyValuePair(Of String, Integer) = dictionaryFocus.Last
+                lastIDFocus = kvp.Value + 1
+            End If
+        Else 'en caso contrario la actualizamos a 0'
+            lastIDFocus = 0
+        End If
+    End Sub
+    'Método encargado de almacenar cada línea del archivo FocusDictionary.txt en el dictionaryFocus (foco e identificador)'
+    Private Sub GetFocusAndID(ByVal line As String)
+        Dim intPos As Integer
+        Dim focus As String
+        Dim idFocus As String
+        intPos = InStr(1, line, "#") 'posicion de "#"
+        'Si intPos es mayor que 0 significa que no se ha interpretrado como valor de la línea: ""
+        If intPos > 0 Then
+            focus = Mid(line, 1, intPos - 1) 'Se extrae desde el inicio hasta la posicion de la coma -1 
+            idFocus = Mid(line, intPos + 1) 'Se extrae desde la posicion de la coma + 1 hasta el final
+            dictionaryFocus.Add(focus, Convert.ToInt32(idFocus))
+        Else
+            'do nothing'
+        End If
+    End Sub
     'Establece la ruta del archivo log y del diccionario de focos'
     Private Sub ReadPathLogAndFocusDict(ByRef ini As FicherosINI)
         Dim pathLog As String = ini.GetString("FICHERO", "Log")

@@ -1,14 +1,12 @@
-﻿Imports UserActivity
-
-Public Class TypeScrollEvent
+﻿Public Class GeneralEvent
     Private _fecha As String
     Private _idAction As Integer
     Private _appOrigin As String
     Private _user As String
-    Private _daoTSEvent As DAOEvent
-
+    Private _daoEvent As DAOEvent
+    'Constructor'
     Public Sub New()
-        Me._daoTSEvent = New DAOEvent
+        Me._daoEvent = New DAOEvent
     End Sub
 #Region "GETTER Y SETTER"
     Public Property Fecha As String
@@ -49,14 +47,14 @@ Public Class TypeScrollEvent
 
     Public Property DaoTSEvent As DAOEvent
         Get
-            Return _daoTSEvent
+            Return _daoEvent
         End Get
         Set(value As DAOEvent)
-            _daoTSEvent = value
+            _daoEvent = value
         End Set
     End Property
 #End Region
     Public Sub InsertEvent()
-        Me._daoTSEvent.InsertTSEvent(Me)
+        Me._daoEvent.InsertEvent(Me)
     End Sub
 End Class
