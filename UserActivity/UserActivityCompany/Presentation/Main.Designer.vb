@@ -28,7 +28,6 @@ Partial Class Main
         Me.NotifyIcon = New System.Windows.Forms.NotifyIcon(Me.components)
         Me.ContextMenuStrip = New System.Windows.Forms.ContextMenuStrip(Me.components)
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.OpenToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ContextMenuStrip.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -51,21 +50,15 @@ Partial Class Main
         'ContextMenuStrip
         '
         Me.ContextMenuStrip.ImageScalingSize = New System.Drawing.Size(24, 24)
-        Me.ContextMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.OpenToolStripMenuItem, Me.ExitToolStripMenuItem})
+        Me.ContextMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ExitToolStripMenuItem})
         Me.ContextMenuStrip.Name = "ContextMenuStrip"
-        Me.ContextMenuStrip.Size = New System.Drawing.Size(241, 97)
+        Me.ContextMenuStrip.Size = New System.Drawing.Size(241, 67)
         '
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
         Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(240, 30)
         Me.ExitToolStripMenuItem.Text = "Exit"
-        '
-        'OpenToolStripMenuItem
-        '
-        Me.OpenToolStripMenuItem.Name = "OpenToolStripMenuItem"
-        Me.OpenToolStripMenuItem.Size = New System.Drawing.Size(240, 30)
-        Me.OpenToolStripMenuItem.Text = "Open"
         '
         'Main
         '
@@ -86,5 +79,4 @@ Partial Class Main
     Private WithEvents NotifyIcon As NotifyIcon
     Friend WithEvents ContextMenuStrip As ContextMenuStrip
     Friend WithEvents ExitToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents OpenToolStripMenuItem As ToolStripMenuItem
 End Class

@@ -1,29 +1,29 @@
 ﻿Imports UserActivity
 
-Public Class Action
-    Private _idAction As Integer
-    Private _action As String
+Public Class Focus
+    Private _idFocus As Integer
+    Private _focus As String
     Private _daoAction As DAOAction
     'Constructor'
     Public Sub New()
-        Me._daoAction = New DAOAction
+        Me.DaoAction = New DAOAction
     End Sub
 #Region "GETTER Y SETTER"
-    Public Property IdAction As Integer
+    Public Property IdFocus As Integer
         Get
-            Return _idAction
+            Return _idFocus
         End Get
         Set(value As Integer)
-            _idAction = value
+            _idFocus = value
         End Set
     End Property
 
-    Public Property Action As String
+    Public Property Focus As String
         Get
-            Return _action
+            Return _focus
         End Get
         Set(value As String)
-            _action = value
+            _focus = value
         End Set
     End Property
 
@@ -36,11 +36,11 @@ Public Class Action
         End Set
     End Property
 #End Region
-    Public Sub InsertAction()
-        Me._daoAction.InsertAction(Me)
+    Public Sub ReadFocus()
+        Me._daoAction.ReadFocus()
     End Sub
 
-    Public Sub ReadAction()
-        Me._daoAction.ReadAction()
+    Public Sub InsertFocus()
+        Me._daoAction.InsertFocus(Me)
     End Sub
 End Class

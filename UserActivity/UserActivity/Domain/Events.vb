@@ -1,4 +1,4 @@
-﻿Public Class GeneralEvent
+﻿Public Class Events
     Private _fecha As String
     Private _idAction As Integer
     Private _appOrigin As String
@@ -56,5 +56,9 @@
 #End Region
     Public Sub InsertEvent()
         Me._daoEvent.InsertEvent(Me)
+    End Sub
+
+    Public Sub InsertFocusEvent()
+        Me._daoEvent.InsertFocusEvent(Me)
     End Sub
 End Class

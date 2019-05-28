@@ -53,4 +53,8 @@ Public Class FicherosINI
         ' Devolver el array
         Return aSeccion
     End Function
+    'Función para leer un valor booleano de fichero INI
+    Public Function GetBoolean(ByVal Section As String, ByVal Key As String, ByVal [Default] As Boolean) As Boolean
+        Return (GetPrivateProfileInt(Section, Key, CInt([Default]), strFilename) = 1)
+    End Function
 End Class

@@ -3,7 +3,6 @@
 Public Class FocusHook
     Private _focusThread As Threading.Thread
     Private _dictionary As Dictionary(Of String, Integer)
-    Private _dictionaryFocus As Dictionary(Of String, Integer)
     'Getter'
     Public Property FocusThread As Thread
         Get
@@ -14,11 +13,10 @@ Public Class FocusHook
         End Set
     End Property
     'Constructor'
-    Public Sub New(ByVal dictionary As Dictionary(Of String, Integer), ByVal dictionaryFocus As Dictionary(Of String, Integer))
+    Public Sub New(ByVal dictionary As Dictionary(Of String, Integer))
         _focusThread = New Threading.Thread(AddressOf GetFocusInfo)
         _focusThread.Start()
         _dictionary = dictionary
-        _dictionaryFocus = dictionaryFocus
     End Sub
     'Evento de foco'
     Public Event FocusRise(ByVal action As Integer, ByVal focus As String)
@@ -28,7 +26,7 @@ Public Class FocusHook
             Dim currentFocus As String = GetPathName()
             Dim action As Integer = SearchValue(_dictionary, "InitActivaApp")
             Dim counter As Integer = SearchValue(_dictionary, "CounterFocus")
-            'Si no se consigue capturar el foco actual no se hace nada'
+            'Si no se consigue capturar el foco actual o se trata del Explorer no se lanza'
             If currentFocus = Nothing Then
                 'do nothing'
             Else
