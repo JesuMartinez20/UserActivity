@@ -26,9 +26,9 @@ Partial Class Main
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Main))
         Me.ListBox1 = New System.Windows.Forms.ListBox()
         Me.NotifyIcon = New System.Windows.Forms.NotifyIcon(Me.components)
-        Me.ContextMenuStrip = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.ContextMenuStrip1 = New System.Windows.Forms.ContextMenuStrip(Me.components)
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ContextMenuStrip.SuspendLayout()
+        Me.ContextMenuStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
         'ListBox1
@@ -43,16 +43,16 @@ Partial Class Main
         '
         'NotifyIcon
         '
-        Me.NotifyIcon.ContextMenuStrip = Me.ContextMenuStrip
+        Me.NotifyIcon.ContextMenuStrip = Me.ContextMenuStrip1
         Me.NotifyIcon.Icon = CType(resources.GetObject("NotifyIcon.Icon"), System.Drawing.Icon)
         Me.NotifyIcon.Text = "UserActivity"
         '
-        'ContextMenuStrip
+        'ContextMenuStrip1
         '
-        Me.ContextMenuStrip.ImageScalingSize = New System.Drawing.Size(24, 24)
-        Me.ContextMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ExitToolStripMenuItem})
-        Me.ContextMenuStrip.Name = "ContextMenuStrip"
-        Me.ContextMenuStrip.Size = New System.Drawing.Size(241, 67)
+        Me.ContextMenuStrip1.ImageScalingSize = New System.Drawing.Size(24, 24)
+        Me.ContextMenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ExitToolStripMenuItem})
+        Me.ContextMenuStrip1.Name = "ContextMenuStrip"
+        Me.ContextMenuStrip1.Size = New System.Drawing.Size(241, 67)
         '
         'ExitToolStripMenuItem
         '
@@ -71,12 +71,12 @@ Partial Class Main
         Me.Name = "Main"
         Me.Text = "UserActivity"
         Me.WindowState = System.Windows.Forms.FormWindowState.Minimized
-        Me.ContextMenuStrip.ResumeLayout(False)
+        Me.ContextMenuStrip1.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
     Friend WithEvents ListBox1 As ListBox
     Private WithEvents NotifyIcon As NotifyIcon
-    Friend WithEvents ContextMenuStrip As ContextMenuStrip
+    Friend WithEvents ContextMenuStrip1 As ContextMenuStrip
     Friend WithEvents ExitToolStripMenuItem As ToolStripMenuItem
 End Class

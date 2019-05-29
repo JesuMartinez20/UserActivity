@@ -52,7 +52,6 @@ Module CommonMethods
         End If
         Return action
     End Function
-
     'Método que devuelve la key de un valor específico de un diccionario'
     Public Function SearchKey(ByVal dictionary As Dictionary(Of String, Integer), ByVal value As Integer)
         Dim actionName As String
