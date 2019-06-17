@@ -52,7 +52,7 @@ Public Class Main
     'Se inicializan los hooks'
     Private Sub StartHooks()
         'Se inicializa el foco principal de la aplicación'
-        lastFocus = GetPathName()
+        'lastFocus = GetPathName()
         'diccionario vacio significa que el archivo .ini no se ha encontrado'
         If dictionaryIni.Count = 0 Then
             Application.Exit()
@@ -282,7 +282,7 @@ Public Class Main
                 'AddItemToList(Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + counterFocusApp.ToString + " en App: " + pathTitle + "#" + user)
                 SaveEventsAndFocusDict(pathTitle, counterFocusApp)
                 UpdateFocusAndAction(pathTitle, counterFocusApp)
-                lastIDFocus = counterFocusApp + 1 'de esta manera se actualiza el último foco registrado'
+                lastIDFocus = counterFocusApp
             Else 'Si el foco no está registrado, el identificador corresponderá al del último almacenado en FocusDictionary.txt'
                 lastIDFocus += 1
                 'AddItemToList(counterFocusApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + "#" + userName)

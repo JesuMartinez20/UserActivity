@@ -28,7 +28,7 @@ Public Class Main
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LaunchAppMinimized()
         ReadIni()
-        ReadFocusCatalog()
+        'ReadFocusCatalog()
         StartHooks()
         StartClipboard()
     End Sub
@@ -41,7 +41,8 @@ Public Class Main
                 NotifyIcon.ShowBalloonTip(1000, "Notify Icon", "UserActivity is running...", ToolTipIcon.Info)
             End If
         Catch ex As Exception
-            MsgBox(ex.Message)
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Application.Exit()
         End Try
     End Sub
 
@@ -51,7 +52,8 @@ Public Class Main
             Me.WindowState = FormWindowState.Normal
             NotifyIcon.Visible = False
         Catch ex As Exception
-            MsgBox(ex.Message)
+            MessageBox.Show(ex.Message, "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Application.Exit()
         End Try
     End Sub
 
@@ -85,7 +87,7 @@ Public Class Main
                 kbHook.Dispose()
             End If
         Catch ex As Exception
-            MessageBox.Show(ex.Message, "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Application.Exit()
         End Try
     End Sub
@@ -118,6 +120,7 @@ Public Class Main
             End If
         Catch ex As Exception
             MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Application.Exit()
         End Try
     End Sub
     'Se leen los parámtetros necesarios para establecer la conexión con la BD'
@@ -188,29 +191,37 @@ Public Class Main
         Dim focus As Focus
         'Comparamos que el foco actual es diferente del foco más antiguo (lastfocus)'
         If lastFocus <> pathTitle And pathTitle <> explorer Then
-            'Si el diccionario no contiene valores, se inicializa guardando tanto el evento foco como sus referencias en el catálogo'
-            If dictionaryFocus.Count = 0 Then
-                focus = FillFocus(pathTitle, counterInitApp)
-                InsertFocus(focus)
-                ev = FillEvent(counterInitApp, pathTitle)
-                'AddItemToList(counterInitApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
-                InsertFocusEvent(ev)
-                UpdateFocusAndAction(pathTitle, counterInitApp)
-            ElseIf dictionaryFocus.ContainsKey(pathTitle) Then 'Si la referencia ya existe, únicamente se guarda el evento foco'
-                Dim focusInBD As Integer = dictionaryFocus.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
-                'AddItemToList(focusInBD.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
-                ev = FillEvent(focusInBD, pathTitle)
-                InsertFocusEvent(ev)
-                UpdateFocusAndAction(pathTitle, focusInBD)
-            Else 'Si se trata de un evento no registrado, se guarda también tanto el evento como las referencias en el catálogo'
-                lastIDFocus += 1 'el siguiente evento registrado será el último + 1'
-                focus = FillFocus(pathTitle, lastIDFocus)
-                InsertFocus(focus)
-                ev = FillEvent(lastIDFocus, pathTitle)
-                'AddItemToList(lastIDFocus.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
-                InsertFocusEvent(ev)
-                UpdateFocusAndAction(pathTitle, lastIDFocus)
-            End If
+            focus = New Focus
+            Try
+                'Se realiza una consulta cada vez que se cambie de foco para comprobar si existe en la BD'
+                focus.ReadFocus()
+                If focus.DaoAction.FocusCatalog.Count = 0 Then 'Si el catálogo está vacío, se inicializa guardando tanto el evento foco como su ID en el catálogo'
+                    focus = FillFocus(pathTitle, counterInitApp)
+                    InsertFocus(focus)
+                    ev = FillEvent(counterInitApp, pathTitle)
+                    'AddItemToList(counterInitApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
+                    InsertFocusEvent(ev)
+                    UpdateFocusAndAction(pathTitle, counterInitApp)
+                    lastIDFocus = counterInitApp 'se inicializa con el ID de foco respectivo del archivo .ini'
+                ElseIf focus.DaoAction.FocusCatalog.ContainsKey(pathTitle) Then 'Si la referencia ya existe, únicamente se guarda el evento foco'
+                    Dim focusInBD As Integer = focus.DaoAction.FocusCatalog.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
+                    'AddItemToList(focusInBD.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
+                    ev = FillEvent(focusInBD, pathTitle)
+                    InsertFocusEvent(ev)
+                    UpdateFocusAndAction(pathTitle, focusInBD)
+                Else 'Si se trata de un evento no registrado, se guarda también tanto el evento como las referencias en el catálogo'
+                    lastIDFocus += 1 'el siguiente evento registrado será el último + 1'
+                    focus = FillFocus(pathTitle, lastIDFocus)
+                    InsertFocus(focus)
+                    ev = FillEvent(lastIDFocus, pathTitle)
+                    'AddItemToList(lastIDFocus.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
+                    InsertFocusEvent(ev)
+                    UpdateFocusAndAction(pathTitle, lastIDFocus)
+                End If
+            Catch ex As Exception
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Environment.Exit(0)
+            End Try
         Else
             'do nothing'
         End If
@@ -250,7 +261,8 @@ Public Class Main
                 'Do nothing'
             End If
         Catch ex As Exception
-            MsgBox(ex.Message)
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Environment.Exit(0)
         End Try
     End Sub
 
@@ -292,13 +304,18 @@ Public Class Main
         Dim kvp As KeyValuePair(Of String, Integer)
         Try
             focus.ReadFocus()
-            For Each kvp In focus.DaoAction.FocusCatalog
-                dictionaryFocus.Add(kvp.Key, kvp.Value)
-            Next
-            lastIDFocus = focus.DaoAction.FocusCatalog.Last.Value
+            'Si el catálogo de focos contiene elementos se ingresan en el diccionario de focos'
+            If focus.DaoAction.FocusCatalog.Count <> 0 Then
+                For Each kvp In focus.DaoAction.FocusCatalog
+                    dictionaryFocus.Add(kvp.Key, kvp.Value)
+                Next
+                lastIDFocus = focus.DaoAction.FocusCatalog.Last.Value
+            Else
+                'do nothing'
+            End If
         Catch ex As Exception
-            MsgBox(ex.Message)
-            Application.Exit()
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Environment.Exit(0)
         End Try
     End Sub
     'Devuelve un objeto con todos los datos del foco'
@@ -313,8 +330,8 @@ Public Class Main
         Try
             focus.InsertFocus()
         Catch ex As Exception
-            MsgBox(ex.Message)
-            Application.Exit()
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Environment.Exit(0)
         End Try
     End Sub
     'Inserta los eventos en la tabla eventos de la bd'
@@ -322,8 +339,8 @@ Public Class Main
         Try
             ev.InsertFocusEvent()
         Catch ex As Exception
-            MsgBox(ex.Message)
-            Application.Exit()
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Environment.Exit(0)
         End Try
     End Sub
     'Se encarga de comprobar si la tabla acciones está completa con los datos del .ini, en caso contrario, los inserta'
@@ -337,8 +354,8 @@ Public Class Main
                 'do nothing'
             End If
         Catch ex As Exception
-            MsgBox(ex.StackTrace)
-            Application.Exit()
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Environment.Exit(0)
         End Try
     End Sub
     'Inserta las acciones en la tabla acciones de la bd'
@@ -350,8 +367,8 @@ Public Class Main
             Try
                 action.InsertAction()
             Catch ex As Exception
-                MsgBox(ex.Message)
-                Application.Exit()
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Environment.Exit(0)
             End Try
         Next
     End Sub
@@ -370,8 +387,8 @@ Public Class Main
         Try
             ev.InsertEvent()
         Catch ex As Exception
-            MsgBox(ex.Message)
-            Application.Exit()
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Environment.Exit(0)
         End Try
     End Sub
     'Devuelve un evento completo de tipo paste'
@@ -390,8 +407,8 @@ Public Class Main
         Try
             pasteEV.InsertPasteEvent()
         Catch ex As Exception
-            MsgBox(ex.Message)
-            Application.Exit()
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Environment.Exit(0)
         End Try
     End Sub
 #End Region

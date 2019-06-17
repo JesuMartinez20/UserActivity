@@ -84,19 +84,31 @@ Public Class KeyboardHook
                 RaiseEvent PasteEvent(action, focus)
             End If
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_S Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_S Then
-                action = SearchValue(_dictionary, "CombCtrlS")
+            action = SearchValue(_dictionary, "CombCtrlS") 'Como es un parámetro opcional se debe controlar su uso o no'
+            If action <> 0 Then
                 focus = GetPathName()
-            RaiseEvent CombKey(action, keyCode, focus)
+                RaiseEvent CombKey(action, keyCode, focus)
+            Else
+                'do nothing'
+            End If
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_G Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_G Then
-                action = SearchValue(_dictionary, "CombCtrlG")
+            action = SearchValue(_dictionary, "CombCtrlG") 'Como es un parámetro opcional se debe controlar su uso o no'
+            If action <> 0 Then
                 focus = GetPathName()
-            RaiseEvent CombKey(action, keyCode, focus)
+                RaiseEvent CombKey(action, keyCode, focus)
+            Else
+                'do nothing'
+            End If
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_F Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_F Then
-                action = SearchValue(_dictionary, "CombCtrlF")
+            action = SearchValue(_dictionary, "CombCtrlF") 'Como es un parámetro opcional se debe controlar su uso o no'
+            If action <> 0 Then
                 focus = GetPathName()
-            RaiseEvent CombKey(action, keyCode, focus)
+                RaiseEvent CombKey(action, keyCode, focus)
+            Else
+                'do nothing'
+            End If
         Else
-                focus = GetPathName()
+            focus = GetPathName()
             action = SearchValue(_dictionary, "Type")
             RaiseEvent KeyDown(action, focus)
         End If
