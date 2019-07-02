@@ -28,7 +28,7 @@ Public Class Main
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LaunchAppMinimized()
         ReadIni()
-        'ReadFocusCatalog()
+        ReadFocusCatalog()
         StartHooks()
         StartClipboard()
     End Sub
@@ -103,7 +103,7 @@ Public Class Main
         Try
             If File.Exists(pathIni) And File.ReadAllLines(pathIni).Length <> 0 Then
                 Dim ini As New FicherosINI(pathIni)
-                ReadBD(ini)
+                'ReadBD(ini)
                 Dim arrayEvents() As String = ini.GetSection("TIPOS_EVENTOS")
                 CheckAndInsertActions(arrayEvents)
                 'Como se guardan pares de valores {llave = valor} el Step es igual a 2'
@@ -124,17 +124,17 @@ Public Class Main
         End Try
     End Sub
     'Se leen los parámtetros necesarios para establecer la conexión con la BD'
-    Private Sub ReadBD(ByRef ini As FicherosINI)
-        Dim arrayBD() As String = ini.GetSection("BD")
-        Dim conexionBD As AgentBD
-        Try
-            conexionBD = New AgentBD(arrayBD(1), arrayBD(3), arrayBD(5), arrayBD(7))
-        Catch ex As Exception
-            MessageBox.Show("No se ha podido conectar con la base de datos." & vbNewLine &
-                            "Compruebe los parámetros en el archivo configBD.ini", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            flagBD = False
-        End Try
-    End Sub
+    'Private Sub ReadBD(ByRef ini As FicherosINI)
+    'Dim arrayBD() As String = ini.GetSection("BD")
+    'Dim conexionBD As AgentBD
+    'Try
+    '       conexionBD = New AgentBD(arrayBD(1), arrayBD(3), arrayBD(5), arrayBD(7))
+    'Catch ex As Exception
+    '       MessageBox.Show("No se ha podido conectar con la base de datos." & vbNewLine &
+    '                      "Compruebe los parámetros en el archivo configBD.ini", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    '     flagBD = False
+    'End Try
+    'End Sub
 #End Region
 #Region "EVENTOS"
     Private Sub kbHook_KeyDown(ByVal typeAction As Integer, ByVal pathTitle As String) Handles kbHook.KeyDown
@@ -191,37 +191,31 @@ Public Class Main
         Dim focus As Focus
         'Comparamos que el foco actual es diferente del foco más antiguo (lastfocus)'
         If lastFocus <> pathTitle And pathTitle <> explorer Then
-            focus = New Focus
-            Try
-                'Se realiza una consulta cada vez que se cambie de foco para comprobar si existe en la BD'
-                focus.ReadFocus()
-                If focus.DaoAction.FocusCatalog.Count = 0 Then 'Si el catálogo está vacío, se inicializa guardando tanto el evento foco como su ID en el catálogo'
-                    focus = FillFocus(pathTitle, counterInitApp)
-                    InsertFocus(focus)
-                    ev = FillEvent(counterInitApp, pathTitle)
-                    'AddItemToList(counterInitApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
-                    InsertFocusEvent(ev)
-                    UpdateFocusAndAction(pathTitle, counterInitApp)
-                    lastIDFocus = counterInitApp 'se inicializa con el ID de foco respectivo del archivo .ini'
-                ElseIf focus.DaoAction.FocusCatalog.ContainsKey(pathTitle) Then 'Si la referencia ya existe, únicamente se guarda el evento foco'
-                    Dim focusInBD As Integer = focus.DaoAction.FocusCatalog.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
-                    'AddItemToList(focusInBD.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
-                    ev = FillEvent(focusInBD, pathTitle)
-                    InsertFocusEvent(ev)
-                    UpdateFocusAndAction(pathTitle, focusInBD)
-                Else 'Si se trata de un evento no registrado, se guarda también tanto el evento como las referencias en el catálogo'
-                    lastIDFocus += 1 'el siguiente evento registrado será el último + 1'
-                    focus = FillFocus(pathTitle, lastIDFocus)
-                    InsertFocus(focus)
-                    ev = FillEvent(lastIDFocus, pathTitle)
-                    'AddItemToList(lastIDFocus.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
-                    InsertFocusEvent(ev)
-                    UpdateFocusAndAction(pathTitle, lastIDFocus)
-                End If
-            Catch ex As Exception
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                Environment.Exit(0)
-            End Try
+            If dictionaryFocus.Count = 0 Then 'Si el catálogo está vacío, se inicializa guardando tanto el evento foco como su ID en el catálogo'
+                focus = FillFocus(pathTitle, counterInitApp)
+                InsertFocus(focus)
+                dictionaryFocus.Add(pathTitle, counterInitApp)
+                ev = FillEvent(counterInitApp, pathTitle)
+                'AddItemToList(counterInitApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
+                InsertFocusEvent(ev)
+                UpdateFocusAndAction(pathTitle, counterInitApp)
+                lastIDFocus = counterInitApp 'se inicializa con el ID de foco respectivo del archivo .ini'
+            ElseIf dictionaryFocus.ContainsKey(pathTitle) Then 'Si la referencia ya existe, únicamente se guarda el evento foco'
+                Dim focusInBD As Integer = dictionaryFocus.Where(Function(p) p.Key = pathTitle).FirstOrDefault.Value
+                'AddItemToList(focusInBD.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
+                ev = FillEvent(focusInBD, pathTitle)
+                InsertFocusEvent(ev)
+                UpdateFocusAndAction(pathTitle, focusInBD)
+            Else 'Si se trata de un evento no registrado, se guarda también tanto el evento como las referencias en el catálogo'
+                lastIDFocus += 1 'el siguiente evento registrado será el último + 1'
+                focus = FillFocus(pathTitle, lastIDFocus)
+                InsertFocus(focus)
+                dictionaryFocus.Add(pathTitle, lastIDFocus)
+                ev = FillEvent(lastIDFocus, pathTitle)
+                'AddItemToList(lastIDFocus.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
+                InsertFocusEvent(ev)
+                UpdateFocusAndAction(pathTitle, lastIDFocus)
+            End If
         Else
             'do nothing'
         End If
@@ -298,7 +292,7 @@ Public Class Main
     End Sub
 #End Region
 #Region "MÉTODOS PARA LA CORRECTA INTERACCIÓN CON LA BASE DE DATOS"
-    'Se guarda el contenido de la tabla catalogo_focos en un diccionario y el úlitmo ID de foco añadido'
+    'Se guarda el contenido de la tabla catalogo_focos en un diccionario y el úlitmo ID de foco añadido, de esta manera se evitan consultas innecesarias a la BD'
     Private Sub ReadFocusCatalog()
         Dim focus As New Focus
         Dim kvp As KeyValuePair(Of String, Integer)
@@ -314,7 +308,7 @@ Public Class Main
                 'do nothing'
             End If
         Catch ex As Exception
-            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("leer foco", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Environment.Exit(0)
         End Try
     End Sub
@@ -330,7 +324,7 @@ Public Class Main
         Try
             focus.InsertFocus()
         Catch ex As Exception
-            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Insertar foco diccionario", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Environment.Exit(0)
         End Try
     End Sub
@@ -339,7 +333,7 @@ Public Class Main
         Try
             ev.InsertFocusEvent()
         Catch ex As Exception
-            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Insertar foco evento", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Environment.Exit(0)
         End Try
     End Sub
@@ -387,7 +381,7 @@ Public Class Main
         Try
             ev.InsertEvent()
         Catch ex As Exception
-            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("insertar evento", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Environment.Exit(0)
         End Try
     End Sub
@@ -407,7 +401,7 @@ Public Class Main
         Try
             pasteEV.InsertPasteEvent()
         Catch ex As Exception
-            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("insertar evento paste", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Environment.Exit(0)
         End Try
     End Sub
@@ -423,7 +417,7 @@ Public Class Main
             Debug.WriteLine(ThreadAbortException.Message)
         End Try
         UnregisterClipboardViewer()
-        AgentBD.CloseBD()
+        'conexionBD.close()
     End Sub
     'Método que se encarga de capturar el control del hilo para poder modificar la lista de otro proceso'
     Public Sub AddItemToList(ByVal item As String)
