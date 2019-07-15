@@ -1,13 +1,13 @@
-﻿Public Class PasteEvent
+﻿Public Class ActionPaste
     Private _fecha As String
     Private _idAction As Integer
     Private _appOrigin As String
     Private _appDestiny As String
     Private _user As String
-    Private _daoEvent As DAOEvent
+    Private _daoAction As DAOAction
     'Constructor'
     Public Sub New()
-        Me._daoEvent = New DAOEvent
+        Me._daoAction = New DAOAction
     End Sub
 #Region "GETTER Y SETTER"
     Public Property Fecha As String
@@ -55,7 +55,7 @@
         End Set
     End Property
 #End Region
-    Public Sub InsertPasteEvent()
-        Me._daoEvent.InsertPasteEvent(Me)
+    Public Sub InsertPasteAction()
+        Me._daoAction.InsertPasteAction(Me)
     End Sub
 End Class

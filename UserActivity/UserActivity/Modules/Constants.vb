@@ -1,9 +1,6 @@
 ﻿Module Constants
     'Ficheros'
     Public pathIni As String = Application.StartupPath + "\config.ini"
-    Public pathFocusDict As String
-    Public pathEvents As String
-    Public pathtest As String = Application.StartupPath + "\Test.txt"
     'Usuario'
     Public userName As String = Environment.UserName
     'Se refiere a la ruta correspondiente del escritorio, task manager... etc'

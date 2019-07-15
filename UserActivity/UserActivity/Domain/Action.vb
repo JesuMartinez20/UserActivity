@@ -1,14 +1,23 @@
-﻿Imports UserActivity
-
-Public Class Action
+﻿Public Class Action
+    Private _fecha As String
     Private _idAction As Integer
-    Private _action As String
+    Private _app As String
+    Private _user As String
     Private _daoAction As DAOAction
     'Constructor'
     Public Sub New()
         Me._daoAction = New DAOAction
     End Sub
 #Region "GETTER Y SETTER"
+    Public Property Fecha As String
+        Get
+            Return _fecha
+        End Get
+        Set(value As String)
+            _fecha = value
+        End Set
+    End Property
+
     Public Property IdAction As Integer
         Get
             Return _idAction
@@ -18,12 +27,21 @@ Public Class Action
         End Set
     End Property
 
-    Public Property Action As String
+    Public Property App As String
         Get
-            Return _action
+            Return _app
         End Get
         Set(value As String)
-            _action = value
+            _app = value
+        End Set
+    End Property
+
+    Public Property User As String
+        Get
+            Return _user
+        End Get
+        Set(value As String)
+            _user = value
         End Set
     End Property
 
@@ -40,7 +58,7 @@ Public Class Action
         Me._daoAction.InsertAction(Me)
     End Sub
 
-    Public Sub ReadAction()
-        Me._daoAction.ReadAction()
+    Public Sub InsertAppAction()
+        Me._daoAction.InsertAppAction(Me)
     End Sub
 End Class

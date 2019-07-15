@@ -45,18 +45,18 @@ Public Class MouseHook
         LLMHF_INJECTED = 1
     End Enum
     'Eventos de ratón'
-    Public Event MouseLeftDown(ByVal focus As String)
-    Public Event MouseWheel(ByVal action As Integer, ByVal focus As String)
+    Public Event MouseLeftDown(ByVal appName As String)
+    Public Event MouseWheel(ByVal actionId As Integer, ByVal appName As String)
     'Esta función se encarga de levantar los eventos elegidos'
     Private Function MouseProc(nCode As Integer, wParam As IntPtr, lParam As IntPtr) As Integer
-        Dim focus As String = ""
-        Dim action As Integer
+        Dim appName As String = ""
+        Dim actionId As Integer
         If nCode = HookCodes.HC_ACTION Then
             Select Case wParam
                 Case WM_MOUSEWHEEL
-                    focus = GetPathName()
-                    action = SearchValue(_dictionary, "Scroll")
-                    RaiseEvent MouseWheel(action, focus)
+                    appName = GetPathName()
+                    actionId = SearchValue(_dictionary, "Scroll")
+                    RaiseEvent MouseWheel(actionId, appName)
             End Select
         End If
         Return CallNextHookEx(_HHookID, nCode, wParam, lParam)

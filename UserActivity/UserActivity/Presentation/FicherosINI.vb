@@ -2,7 +2,7 @@
 
 Public Class FicherosINI
     Private strFilename As String
-    ' Constructor, para aceptar el fichero INI'
+    'Constructor para aceptar el fichero INI'
     Public Sub New(ByVal Filename As String)
         strFilename = Filename
     End Sub
