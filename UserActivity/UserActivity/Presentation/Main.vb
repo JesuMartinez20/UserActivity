@@ -317,8 +317,8 @@ Public Class Main
     Private Function SaveApp(appName As String, appId As Integer) As Catalog_Apps
         Dim ca As New Catalog_Apps
         ca.IdApp = appId
-        ca.App = appName.Replace("\", "\\")
-        'ca.App = appName
+        'ca.App = appName.Replace("\", "\\")
+        ca.App = appName
         Return ca
     End Function
     'Inserta una app en la tabla catalogo_apps de la bd'
@@ -373,8 +373,8 @@ Public Class Main
         action.Fecha = Now.ToString("yyyy-MM-dd HH:mm:ss")
         action.IdAction = actionId
         'De esta manera se inserta correctamente el path en la base de datos'
-        action.App = appName.Replace("\", "\\")
-        'action.App = appName
+        'action.App = appName.Replace("\", "\\")
+        action.App = appName
         action.User = userName
         Return action
     End Function
@@ -393,10 +393,10 @@ Public Class Main
         p.Fecha = Now.ToString("yyyy-MM-dd HH:mm:ss")
         p.IdAction = actionId
         'De esta manera se inserta correctamente el path en la base de datos'
-        p.AppOrigin = originApp.Replace("\", "\\")
-        'p.AppOrigin = originApp
-        p.AppDestiny = destinyApp.Replace("\", "\\")
-        'p.AppDestiny = destinyApp
+        'p.AppOrigin = originApp.Replace("\", "\\")
+        p.AppOrigin = originApp
+        'p.AppDestiny = destinyApp.Replace("\", "\\")
+        p.AppDestiny = destinyApp
         p.User = userName
         Return p
     End Function

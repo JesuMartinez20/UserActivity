@@ -13,14 +13,14 @@ Module CommonMethods
             proc = Process.GetProcessById(wProcID)
             'Se capturan los procesos por si alguno no tiene permisos de lectura'
             Try
-                procName = proc.MainModule.FileName
-                'procName = proc.ProcessName
+                'procName = proc.MainModule.FileName
+                procName = proc.ProcessName
             Catch ex As Exception
                 procName = ""
             End Try
         End If
-        Return procName
-        'Return procName.ToLower
+        'Return procName
+        Return procName.ToLower
         '
     End Function
     'Obtiene el número de un proceso determinado'
