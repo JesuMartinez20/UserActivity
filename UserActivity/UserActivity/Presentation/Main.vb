@@ -69,7 +69,7 @@ Public Class Main
     'Se inicializan los hooks'
     Private Sub StartHooks()
         'Se inicializa el foco principal de la aplicación'
-        currentAppName = GetPathName()
+        currentAppName = GetAppName()
         'diccionario vacio significa que el archivo .ini no se ha encontrado'
         If actions.Count = 0 Then
             Application.Exit()
@@ -126,18 +126,6 @@ Public Class Main
             Application.Exit()
         End Try
     End Sub
-    'Se leen los parámtetros necesarios para establecer la conexión con la BD'
-    'Private Sub ReadBD(ByRef ini As FicherosINI)
-    'Dim arrayBD() As String = ini.GetSection("BD")
-    'Dim conexionBD As AgentBD
-    'Try
-    '       conexionBD = New AgentBD(arrayBD(1), arrayBD(3), arrayBD(5), arrayBD(7))
-    'Catch ex As Exception
-    '       MessageBox.Show("No se ha podido conectar con la base de datos." & vbNewLine &
-    '                      "Compruebe los parámetros en el archivo configBD.ini", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-    '     flagBD = False
-    'End Try
-    'End Sub
 #End Region
 #Region "EVENTOS"
     Private Sub kbHook_KeyDown(ByVal actionId As Integer, ByVal appName As String) Handles kbHook.KeyDown
@@ -262,7 +250,7 @@ Public Class Main
     End Sub
 
     Private Sub ClipboardAction() Handles Me.ClipboardData
-        Dim originApp As String = GetPathName()
+        Dim originApp As String = GetAppName()
         Dim actionId As Integer = SearchValue(actions, "Copy")
         Dim action As Action
         If actionId <> currentActionId And originApp <> explorer Then
@@ -309,7 +297,7 @@ Public Class Main
                 'do nothing'
             End If
         Catch ex As Exception
-            MessageBox.Show("leer foco", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Environment.Exit(0)
         End Try
     End Sub
@@ -317,7 +305,6 @@ Public Class Main
     Private Function SaveApp(appName As String, appId As Integer) As Catalog_Apps
         Dim ca As New Catalog_Apps
         ca.IdApp = appId
-        'ca.App = appName.Replace("\", "\\")
         ca.App = appName
         Return ca
     End Function
@@ -326,7 +313,7 @@ Public Class Main
         Try
             ca.InsertApp()
         Catch ex As Exception
-            MessageBox.Show("Insertar foco diccionario", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Environment.Exit(0)
         End Try
     End Sub
@@ -335,7 +322,7 @@ Public Class Main
         Try
             action.InsertAppAction()
         Catch ex As Exception
-            MessageBox.Show("Insertar foco evento", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Environment.Exit(0)
         End Try
     End Sub
@@ -372,8 +359,6 @@ Public Class Main
         Dim action As Action = New Action
         action.Fecha = Now.ToString("yyyy-MM-dd HH:mm:ss")
         action.IdAction = actionId
-        'De esta manera se inserta correctamente el path en la base de datos'
-        'action.App = appName.Replace("\", "\\")
         action.App = appName
         action.User = userName
         Return action
@@ -383,7 +368,7 @@ Public Class Main
         Try
             action.InsertAction()
         Catch ex As Exception
-            MessageBox.Show("insertar evento", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Environment.Exit(0)
         End Try
     End Sub
@@ -392,10 +377,7 @@ Public Class Main
         Dim p As ActionPaste = New ActionPaste
         p.Fecha = Now.ToString("yyyy-MM-dd HH:mm:ss")
         p.IdAction = actionId
-        'De esta manera se inserta correctamente el path en la base de datos'
-        'p.AppOrigin = originApp.Replace("\", "\\")
         p.AppOrigin = originApp
-        'p.AppDestiny = destinyApp.Replace("\", "\\")
         p.AppDestiny = destinyApp
         p.User = userName
         Return p
@@ -405,7 +387,7 @@ Public Class Main
         Try
             p.InsertPasteAction()
         Catch ex As Exception
-            MessageBox.Show("insertar evento paste", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Environment.Exit(0)
         End Try
     End Sub

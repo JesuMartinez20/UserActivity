@@ -23,7 +23,7 @@ Public Class FocusHook
     'Método que cada cierto tiempo lanza un evento de la aplicación activa'
     Public Sub GetFocusInfo()
         While True
-            Dim newAppName As String = GetPathName()
+            Dim newAppName As String = GetAppName()
             'Si no se consigue la aplicación activa no se hace nada'
             If newAppName = Nothing Then
                 'do nothing'

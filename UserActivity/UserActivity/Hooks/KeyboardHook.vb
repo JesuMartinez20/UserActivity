@@ -79,13 +79,13 @@ Public Class KeyboardHook
             GetAsyncKeyState(VK_LSHIFT) And keyCode = VK_INSERT Or GetAsyncKeyState(VK_RSHIFT) And keyCode = VK_INSERT Then
             If Clipboard.ContainsText Or Clipboard.ContainsImage Then
                 actionId = SearchValue(_dictionary, "Paste")
-                appName = GetPathName()
+                appName = GetAppName()
                 RaiseEvent PasteAction(actionId, appName)
             End If
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_S Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_S Then
             actionId = SearchValue(_dictionary, "CombCtrlS") 'Como es un parámetro opcional se debe controlar su uso o no'
             If actionId <> 0 Then
-                appName = GetPathName()
+                appName = GetAppName()
                 RaiseEvent CombKey(actionId, keyCode, appName)
             Else
                 'do nothing'
@@ -93,7 +93,7 @@ Public Class KeyboardHook
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_G Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_G Then
             actionId = SearchValue(_dictionary, "CombCtrlG") 'Como es un parámetro opcional se debe controlar su uso o no'
             If actionId <> 0 Then
-                appName = GetPathName()
+                appName = GetAppName()
                 RaiseEvent CombKey(actionId, keyCode, appName)
             Else
                 'do nothing'
@@ -101,13 +101,13 @@ Public Class KeyboardHook
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_F Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_F Then
             actionId = SearchValue(_dictionary, "CombCtrlF") 'Como es un parámetro opcional se debe controlar su uso o no'
             If actionId <> 0 Then
-                appName = GetPathName()
+                appName = GetAppName()
                 RaiseEvent CombKey(actionId, keyCode, appName)
             Else
                 'do nothing'
             End If
         Else
-            appName = GetPathName()
+            appName = GetAppName()
             actionId = SearchValue(_dictionary, "Type")
             RaiseEvent KeyDown(actionId, appName)
         End If

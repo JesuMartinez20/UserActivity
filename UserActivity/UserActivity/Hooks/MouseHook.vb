@@ -54,7 +54,7 @@ Public Class MouseHook
         If nCode = HookCodes.HC_ACTION Then
             Select Case wParam
                 Case WM_MOUSEWHEEL
-                    appName = GetPathName()
+                    appName = GetAppName()
                     actionId = SearchValue(_dictionary, "Scroll")
                     RaiseEvent MouseWheel(actionId, appName)
             End Select

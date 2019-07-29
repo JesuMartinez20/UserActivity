@@ -1,8 +1,8 @@
 ﻿Imports System.Text
 
 Module CommonMethods
-    'Obtiene el path completo de una aplicación determinada'
-    Public Function GetPathName()
+    'Obtiene el nombre de una aplicación determinada'
+    Public Function GetAppName()
         Dim hWnd As IntPtr = GetForegroundWindow()
         Dim proc As Process
         Dim wProcID As Integer = Nothing
@@ -13,13 +13,11 @@ Module CommonMethods
             proc = Process.GetProcessById(wProcID)
             'Se capturan los procesos por si alguno no tiene permisos de lectura'
             Try
-                'procName = proc.MainModule.FileName
                 procName = proc.ProcessName
             Catch ex As Exception
                 procName = ""
             End Try
         End If
-        'Return procName
         Return procName.ToLower
         '
     End Function
