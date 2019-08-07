@@ -18,7 +18,7 @@ Module CommonMethods
                 wFileName = ""
             End Try
         End If
-        Return wFileName
+        Return wFileName.ToLower
     End Function
     'Obtiene el número de un proceso determinado'
     Public Function GetProcessID()
@@ -51,15 +51,5 @@ Module CommonMethods
         Else action = 0
         End If
         Return action
-    End Function
-
-    'Método que devuelve la key de un valor específico de un diccionario'
-    Public Function SearchKey(ByVal dictionary As Dictionary(Of String, Integer), ByVal value As Integer)
-        Dim actionName As String
-        If dictionary.ContainsValue(value) Then
-            actionName = dictionary.Where(Function(p) p.Value = value).FirstOrDefault.Key
-        Else actionName = 0
-        End If
-        Return actionName
     End Function
 End Module

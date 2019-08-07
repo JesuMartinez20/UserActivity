@@ -177,9 +177,9 @@ Public Class Main
         Dim iniAppId As Integer
         Dim action As Action
         Dim app As Catalog_Apps
-        'Se compara la apliación activa actualmente con la activa por última vez, si es diferente, se gestionará dependiendo de 3 casos'
+        'Se compara la aplicación activa actualmente con la activa por última vez, si es diferente, se gestionará dependiendo de 3 casos'
         If currentAppName <> appName And appName <> explorer Then
-            If appsRegistered.Count = 0 Then 'Si el catálogo está vacío se inicializa guardando tanto la aplicación activa como su Id correspondiente'
+            If appsRegistered.Count = 0 Then 'Si el catálogo está vacío se inicializa guardando tanto la aplicación activa como su id correspondiente'
                 iniAppId = arrayActions.Count + 1 'El Id de inicio será el número de acciones registradas +1'
                 app = SaveApp(appName, iniAppId)
                 InsertAppCatalog(app)
@@ -188,7 +188,7 @@ Public Class Main
                 'AddItemToList(counterInitApp.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
                 InsertApp(action)
                 UpdateCurrentAction(appName, iniAppId)
-                lastAppId = iniAppId 'se actualiza el Id de aplicación activa'
+                lastAppId = iniAppId 'se actualiza el id de aplicación activa'
             ElseIf appsRegistered.ContainsKey(appName) Then 'Si la app ya está registrada, se recuperan su nombre y su id, posteriormente se registra'
                 Dim actionIdRegistered As Integer = appsRegistered.Where(Function(p) p.Key = appName).FirstOrDefault.Value 'id de la app registrada en el diccionario'
                 'AddItemToList(focusInBD.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
@@ -280,7 +280,7 @@ Public Class Main
         End If
     End Sub
 #End Region
-#Region "MÉTODOS PARA LA CORRECTA INTERACCIÓN CON LA BASE DE DATOS"
+#Region "MÉTODOS CRUD PARA RECUPERAR LOS DATOS NECESARIOS EN CADA CASO"
     'Se lee el catalogo de apps provenientes de la BD y se vuelca la información en un diccionario llamado appsRegistered para evitar consultas innecesarias a la BD'
     Private Sub ReadCatalogApps()
         Dim ca As New Catalog_Apps

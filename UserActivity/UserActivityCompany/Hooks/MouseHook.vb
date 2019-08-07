@@ -11,7 +11,11 @@ Public Class MouseHook
     <DllImport("User32.dll", CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.StdCall)>
     Private Shared Function SetWindowsHookEx(ByVal idHook As HookType, ByVal HookProc As MSDLLHookProc, ByVal hInstance As IntPtr, ByVal wParam As Integer) As Integer
     End Function
+    '<DllImport("user32.dll")>
+    'Private Shared Function CallNextHookEx(ByVal hHook As IntPtr, ByVal nCode As Integer, ByVal wParam As IntPtr, ByRef lParam As MSLLHOOKSTRUCT) As IntPtr
+    'End Function
     'Se delega la función KBDLLHookProc de manera asíncrona y se declara el objeto de este tipo'
+    'Private Delegate Function MSDLLHookProc(ByVal nCode As Integer, ByVal wParam As IntPtr, ByRef lParam As MSLLHOOKSTRUCT) As Integer
     Private Delegate Function MSDLLHookProc(ByVal nCode As Integer, ByVal wParam As IntPtr, ByVal lParam As IntPtr) As Integer
     Private MSDLLHookProcDelegate As MSDLLHookProc = New MSDLLHookProc(AddressOf MouseProc)
     'Getter'
@@ -45,18 +49,28 @@ Public Class MouseHook
         LLMHF_INJECTED = 1
     End Enum
     'Eventos de ratón'
-    Public Event MouseLeftDown(ByVal focus As String)
+    Public Event MouseLeftDown(ByVal action As Integer, ByVal point As Point)
+    Public Event MouseRightDown(ByVal action As Integer, ByVal point As Point)
     Public Event MouseWheel(ByVal action As Integer, ByVal focus As String)
     'Esta función se encarga de levantar los eventos elegidos'
     Private Function MouseProc(nCode As Integer, wParam As IntPtr, lParam As IntPtr) As Integer
-        Dim focus As String = ""
-        Dim action As Integer
+        Dim appName As String = ""
+        Dim actionId As Integer
+        Dim point As Point
         If nCode = HookCodes.HC_ACTION Then
             Select Case wParam
                 Case WM_MOUSEWHEEL
-                    focus = GetPathName()
-                    action = SearchValue(_dictionary, "Scroll")
-                    RaiseEvent MouseWheel(action, focus)
+                    appName = GetPathName()
+                    actionId = SearchValue(_dictionary, "Scroll")
+                    RaiseEvent MouseWheel(actionId, appName)
+                    'Case WM_LBUTTONDOWN
+                    '   actionId = SearchValue(_dictionary, "LmouseClick")
+                    '  point = lParam.pt
+                    ' RaiseEvent MouseLeftDown(actionId, point)
+                    'Case WM_RBUTTONDOWN
+                    '   actionId = SearchValue(_dictionary, "RmouseClick")
+                    '  point = lParam.pt
+                    ' RaiseEvent MouseRightDown(actionId, point)
             End Select
         End If
         Return CallNextHookEx(_HHookID, nCode, wParam, lParam)

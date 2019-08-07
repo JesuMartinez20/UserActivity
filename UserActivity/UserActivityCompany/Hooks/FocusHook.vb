@@ -2,7 +2,7 @@
 
 Public Class FocusHook
     Private _focusThread As Threading.Thread
-    Private _dictionary As Dictionary(Of String, Integer)
+    Private _focusThresHold As Integer
     'Getter'
     Public Property FocusThread As Thread
         Get
@@ -13,26 +13,24 @@ Public Class FocusHook
         End Set
     End Property
     'Constructor'
-    Public Sub New(ByVal dictionary As Dictionary(Of String, Integer))
+    Public Sub New(ByVal focusThresHold As Integer)
         _focusThread = New Threading.Thread(AddressOf GetFocusInfo)
         _focusThread.Start()
-        _dictionary = dictionary
+        _focusThresHold = focusThresHold
     End Sub
     'Evento de foco'
-    Public Event FocusRise(ByVal action As Integer, ByVal focus As String)
-    'Método que cada cierto tiempo lanza un evento del foco actual'
+    Public Event AppRise(ByVal appName As String)
+    'Método que cada cierto tiempo lanza un evento de la aplicación activa'
     Public Sub GetFocusInfo()
         While True
-            Dim currentFocus As String = GetPathName()
-            Dim action As Integer = SearchValue(_dictionary, "InitActivaApp")
-            Dim counter As Integer = SearchValue(_dictionary, "CounterFocus")
-            'Si no se consigue capturar el foco actual o se trata del Explorer no se lanza'
-            If currentFocus = Nothing Then
+            Dim newAppName As String = GetPathName()
+            'Si no se consigue la aplicación activa no se hace nada'
+            If newAppName = Nothing Then
                 'do nothing'
             Else
-                RaiseEvent FocusRise(action, currentFocus)
+                RaiseEvent AppRise(newAppName)
             End If
-            System.Threading.Thread.Sleep(counter)
+            System.Threading.Thread.Sleep(_focusThresHold)
         End While
     End Sub
 End Class

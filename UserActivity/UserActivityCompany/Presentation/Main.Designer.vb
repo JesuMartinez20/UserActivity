@@ -36,7 +36,7 @@ Partial Class Main
         Me.ListBox1.FormattingEnabled = True
         Me.ListBox1.ItemHeight = 16
         Me.ListBox1.Location = New System.Drawing.Point(16, 18)
-        Me.ListBox1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.ListBox1.Margin = New System.Windows.Forms.Padding(4)
         Me.ListBox1.Name = "ListBox1"
         Me.ListBox1.Size = New System.Drawing.Size(1033, 516)
         Me.ListBox1.TabIndex = 1
@@ -67,7 +67,7 @@ Partial Class Main
         Me.ClientSize = New System.Drawing.Size(1067, 554)
         Me.Controls.Add(Me.ListBox1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
-        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "Main"
         Me.Text = "UserActivity"
         Me.WindowState = System.Windows.Forms.FormWindowState.Minimized
