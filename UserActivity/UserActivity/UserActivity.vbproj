@@ -88,6 +88,9 @@
   <PropertyGroup>
     <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="MySql.Data, Version=8.0.16.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -148,7 +151,7 @@
     <Compile Include="Persistence\AgentBD.vb" />
     <Compile Include="Persistence\DAOCatalog.vb" />
     <Compile Include="Persistence\DAOAction.vb" />
-    <Compile Include="Presentation\FicherosINI.vb" />
+    <Compile Include="Presentation\INIFiles.vb" />
     <Compile Include="Presentation\Main.Designer.vb">
       <DependentUpon>Main.vb</DependentUpon>
     </Compile>
@@ -192,10 +195,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Ficheros\" />
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="icon-track.ico" />
   </ItemGroup>

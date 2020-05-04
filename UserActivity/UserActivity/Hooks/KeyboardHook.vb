@@ -17,19 +17,19 @@ Public Class KeyboardHook
     'Getters'
     Public Property HHookID As IntPtr
         Get
-            Return _HHookID
+            Return Me._HHookID
         End Get
         Set(value As IntPtr)
-            _HHookID = value
+            Me._HHookID = value
         End Set
     End Property
     '********************************************************************************************'
     'Constructor'
     Public Sub New(ByVal dictionary As Dictionary(Of String, Integer))
-        _HHookID = IntPtr.Zero
-        _dictionary = dictionary
+        Me._HHookID = IntPtr.Zero
+        Me._dictionary = dictionary
         'hInstance = System.Runtime.InteropServices.Marshal.GetHINSTANCE(System.Reflection.Assembly.GetExecutingAssembly.GetModules()(0)).ToInt32
-        _HHookID = SetWindowsHookEx(HookType.WH_KEYBOARD_LL, KBDLLHookProcDelegate, 0, 0)
+        Me._HHookID = SetWindowsHookEx(HookType.WH_KEYBOARD_LL, KBDLLHookProcDelegate, 0, 0)
     End Sub
     'Estructura KBLLHOOKSTRUCT obtiene información del ratón a bajo nivel'
     <StructLayout(LayoutKind.Sequential)>
@@ -49,25 +49,26 @@ Public Class KeyboardHook
     End Enum
     'Se declaran los eventos de teclado'
     Public Event KeyDown(ByVal actionId As Integer, ByVal appName As String)
-    Public Event CombKey(ByVal actionId As Integer, ByVal vKey As Keys, ByVal appName As String)
+    Public Event CombKey(ByVal actionId As Integer, ByVal appName As String)
     Public Event PasteAction(ByVal actionId As Integer, ByVal appName As String)
     'Esta función se encarga de capturar los mensajes de teclado'
     Private Function KeyboardProc(nCode As Integer, wParam As IntPtr, lParam As IntPtr) As Integer
         Dim actionId As Integer = 0
         Dim keyCode As Integer
         Dim appName As String = ""
+
         If nCode = HookCodes.HC_ACTION Then
             Select Case wParam
                 Case WM_KEYDOWN, WM_SYSKEYDOWN
                     keyCode = CType(Marshal.PtrToStructure(lParam, Hookstruct.GetType()), KBDLLHOOKSTRUCT).vkCode
-                    GrapCombKey(actionId, keyCode, appName)
+                    GrapKeyboard(actionId, keyCode, appName)
             End Select
         End If
-        Return CallNextHookEx(_HHookID, nCode, wParam, lParam)
+        Return CallNextHookEx(Me._HHookID, nCode, wParam, lParam)
     End Function
     'En este método se capturan las combinaciones de teclas más usadas'
-    Private Sub GrapCombKey(ByRef actionId As Integer, keyCode As Integer, ByRef appName As String)
-        'En esta parte se capturan las combinaciones que no se quiere registrar como evento de escritura o de comb de teclas'
+    Private Sub GrapKeyboard(ByRef actionId As Integer, keyCode As Integer, ByRef appName As String)
+        'En esta condición se capturan las combinaciones de teclas que no se quieren registrar'
         If GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_C Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_C _
             Or GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_X Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_X _
             Or GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_Z Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_Z _
@@ -78,50 +79,44 @@ Public Class KeyboardHook
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_V Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_V Or
             GetAsyncKeyState(VK_LSHIFT) And keyCode = VK_INSERT Or GetAsyncKeyState(VK_RSHIFT) And keyCode = VK_INSERT Then
             If Clipboard.ContainsText Or Clipboard.ContainsImage Then
-                actionId = SearchValue(_dictionary, "Paste")
+                actionId = SearchValue(Me._dictionary, "Paste")
                 appName = GetAppName()
                 RaiseEvent PasteAction(actionId, appName)
             End If
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_S Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_S Then
-            actionId = SearchValue(_dictionary, "CombCtrlS") 'Como es un parámetro opcional se debe controlar su uso o no'
+            actionId = SearchValue(Me._dictionary, "CombCtrlS") 'Como es un parámetro opcional se debe controlar su uso o no'
             If actionId <> 0 Then
                 appName = GetAppName()
-                RaiseEvent CombKey(actionId, keyCode, appName)
-            Else
-                'do nothing'
+                RaiseEvent CombKey(actionId, appName)
             End If
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_G Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_G Then
-            actionId = SearchValue(_dictionary, "CombCtrlG") 'Como es un parámetro opcional se debe controlar su uso o no'
+            actionId = SearchValue(Me._dictionary, "CombCtrlG") 'Como es un parámetro opcional se debe controlar su uso o no'
             If actionId <> 0 Then
                 appName = GetAppName()
-                RaiseEvent CombKey(actionId, keyCode, appName)
-            Else
-                'do nothing'
+                RaiseEvent CombKey(actionId, appName)
             End If
         ElseIf GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_F Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_F Then
-            actionId = SearchValue(_dictionary, "CombCtrlF") 'Como es un parámetro opcional se debe controlar su uso o no'
+            actionId = SearchValue(Me._dictionary, "CombCtrlF") 'Como es un parámetro opcional se debe controlar su uso o no'
             If actionId <> 0 Then
                 appName = GetAppName()
-                RaiseEvent CombKey(actionId, keyCode, appName)
-            Else
-                'do nothing'
+                RaiseEvent CombKey(actionId, appName)
             End If
         Else
             appName = GetAppName()
-            actionId = SearchValue(_dictionary, "Type")
+            actionId = SearchValue(Me._dictionary, "Type")
             RaiseEvent KeyDown(actionId, appName)
         End If
     End Sub
     'Se utiliza esta interfaz para liberar la memoria asignada a un objeto administrado cuando ya no se utiliza ese objeto
     Public Sub Dispose() Implements IDisposable.Dispose
-        If Not _HHookID = IntPtr.Zero Then
-            UnhookWindowsHookEx(HHookID)
+        If Not Me._HHookID = IntPtr.Zero Then
+            UnhookWindowsHookEx(Me._HHookID)
         End If
     End Sub
 
     Protected Overrides Sub Finalize()
-        If Not _HHookID = IntPtr.Zero Then
-            UnhookWindowsHookEx(HHookID)
+        If Not Me._HHookID = IntPtr.Zero Then
+            UnhookWindowsHookEx(Me._HHookID)
         End If
         MyBase.Finalize()
     End Sub

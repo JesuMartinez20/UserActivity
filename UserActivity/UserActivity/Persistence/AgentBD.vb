@@ -6,25 +6,28 @@ Public Class AgentBD
     Private Shared userID As String
     Private Shared password As String
     Private Shared database As String
+
     'GETTER'
     Public Property Conexion As MySqlConnection
         Get
-            Return _conexion
+            Return Me._conexion
         End Get
         Set(value As MySqlConnection)
-            _conexion = value
+            Me._conexion = value
         End Set
     End Property
+
     'Constructor'
     Public Sub New()
         ReadBD()
-        conexion = New MySqlConnection
-        conexion.ConnectionString = "server=" & server & ";" & "user id=" & userID & ";" & "password=" & password & ";" & "database=" & database & ";"
-        conexion.Open()
+        Me._conexion = New MySqlConnection
+        Me._conexion.ConnectionString = "server=" & server & ";" & "user id=" & userID & ";" & "password=" & password & ";" & "database=" & database & ";"
+        Me._conexion.Open()
     End Sub
+
     'Se leen los parámtetros necesarios para establecer la conexión con la BD'
     Private Sub ReadBD()
-        Dim ini As New FicherosINI(pathIni)
+        Dim ini As New INIFiles(pathIni)
         Dim arrayBD() As String = ini.GetSection("BD")
         server = arrayBD(1)
         userID = arrayBD(3)

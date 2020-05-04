@@ -6,33 +6,33 @@ Public Class Catalog_Apps
     Private _daoCatalog As DAOCatalog
     'Constructor'
     Public Sub New()
-        Me.DaoCatalog = New DAOCatalog
+        Me._daoCatalog = New DAOCatalog
     End Sub
 #Region "GETTER Y SETTER"
     Public Property IdApp As Integer
         Get
-            Return _idApp
+            Return Me._idApp
         End Get
         Set(value As Integer)
-            _idApp = value
+            Me._idApp = value
         End Set
     End Property
 
     Public Property App As String
         Get
-            Return _app
+            Return Me._app
         End Get
         Set(value As String)
-            _app = value
+            Me._app = value
         End Set
     End Property
 
     Public Property DaoCatalog As DAOCatalog
         Get
-            Return _daoCatalog
+            Return Me._daoCatalog
         End Get
         Set(value As DAOCatalog)
-            _daoCatalog = value
+            Me._daoCatalog = value
         End Set
     End Property
 #End Region

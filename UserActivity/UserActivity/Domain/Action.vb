@@ -11,46 +11,46 @@
 #Region "GETTER Y SETTER"
     Public Property Fecha As String
         Get
-            Return _fecha
+            Return Me._fecha
         End Get
         Set(value As String)
-            _fecha = value
+            Me._fecha = value
         End Set
     End Property
 
     Public Property IdAction As Integer
         Get
-            Return _idAction
+            Return Me._idAction
         End Get
         Set(value As Integer)
-            _idAction = value
+            Me._idAction = value
         End Set
     End Property
 
     Public Property App As String
         Get
-            Return _app
+            Return Me._app
         End Get
         Set(value As String)
-            _app = value
+            Me._app = value
         End Set
     End Property
 
     Public Property User As String
         Get
-            Return _user
+            Return Me._user
         End Get
         Set(value As String)
-            _user = value
+            Me._user = value
         End Set
     End Property
 
     Public Property DaoAction As DAOAction
         Get
-            Return _daoAction
+            Return Me._daoAction
         End Get
         Set(value As DAOAction)
-            _daoAction = value
+            Me._daoAction = value
         End Set
     End Property
 #End Region

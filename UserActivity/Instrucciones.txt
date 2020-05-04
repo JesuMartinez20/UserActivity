@@ -1,0 +1,8 @@
+Esta carpeta contiene los ejecutables de la aplicación UserActivity elaborada por: Jesús Martínez Manrique.
+Existen dos carpetas:
+1. UserActivity final. Incluye la aplicación UserActivity definitiva. Primeramente, es necesario incorporar el fichero nombre del archivo en algún 
+entorno visual de diseño de base de datos, como MySQL Workbench, con el objetivo de comunicar la base de datos con la herramienta (modificar la sección "BD" 
+del archivo "config.ini" si el usuario ha modificado las credenciales de su base de datos). Acto seguido se procede a ejecutar el archivo
+"UserActivity.exe" y la herramienta se lanzará en segundo plano lista para recolectar información del usuario.
+
+2. UserActivity live. Incluye una versión más ligera de la aplicación UserActivity. CONTINUAR CUANDO ACABE LA OTRA

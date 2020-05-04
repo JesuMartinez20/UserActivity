@@ -6,11 +6,10 @@
     'Usuario'
     Public userName As String = Environment.UserName
     'Se refiere a la ruta correspondiente del escritorio, task manager... etc'
-    Public explorer As String = "C:\WINDOWS\Explorer.EXE"
+    Public explorer As String = "explorer"
+    Public userActivity As String = "useractivitycompany"
     'Notificaciones de entrada de ratón'
     Public Const WM_MOUSEWHEEL As Integer = &H20A
-    Public Const WM_LBUTTONDOWN As Integer = &H201
-    Public Const WM_RBUTTONDOWN As Integer = &H204
     'Notificaciones de entrada de teclado'
     Public Const WM_KEYDOWN As Integer = &H100
     Public Const WM_SYSKEYDOWN As Integer = &H104

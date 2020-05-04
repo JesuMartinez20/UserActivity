@@ -52,13 +52,13 @@ Partial Class Main
         Me.ContextMenuStrip1.ImageScalingSize = New System.Drawing.Size(24, 24)
         Me.ContextMenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ExitToolStripMenuItem})
         Me.ContextMenuStrip1.Name = "ContextMenuStrip"
-        Me.ContextMenuStrip1.Size = New System.Drawing.Size(103, 28)
+        Me.ContextMenuStrip1.Size = New System.Drawing.Size(211, 56)
         '
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(102, 24)
-        Me.ExitToolStripMenuItem.Text = "Exit"
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(210, 24)
+        Me.ExitToolStripMenuItem.Text = "Salir"
         '
         'Main
         '

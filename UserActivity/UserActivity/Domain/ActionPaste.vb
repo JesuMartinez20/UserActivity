@@ -12,46 +12,46 @@
 #Region "GETTER Y SETTER"
     Public Property Fecha As String
         Get
-            Return _fecha
+            Return Me._fecha
         End Get
         Set(value As String)
-            _fecha = value
+            Me._fecha = value
         End Set
     End Property
 
     Public Property IdAction As Integer
         Get
-            Return _idAction
+            Return Me._idAction
         End Get
         Set(value As Integer)
-            _idAction = value
+            Me._idAction = value
         End Set
     End Property
 
     Public Property AppOrigin As String
         Get
-            Return _appOrigin
+            Return Me._appOrigin
         End Get
         Set(value As String)
-            _appOrigin = value
+            Me._appOrigin = value
         End Set
     End Property
 
     Public Property AppDestiny As String
         Get
-            Return _appDestiny
+            Return Me._appDestiny
         End Get
         Set(value As String)
-            _appDestiny = value
+            Me._appDestiny = value
         End Set
     End Property
 
     Public Property User As String
         Get
-            Return _user
+            Return Me._user
         End Get
         Set(value As String)
-            _user = value
+            Me._user = value
         End Set
     End Property
 #End Region

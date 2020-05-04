@@ -6,19 +6,20 @@ Module CommonMethods
         Dim hWnd As IntPtr = GetForegroundWindow()
         Dim proc As Process
         Dim wProcID As Integer = Nothing
-        Dim wFileName As String = ""
+        Dim procName As String = ""
         '
         If hWnd <> IntPtr.Zero Then
             GetWindowThreadProcessId(hWnd, wProcID)
             proc = Process.GetProcessById(wProcID)
-            'capturamos los procesos por si alguno no tiene permisos de lectura'
+            'Se capturan los procesos por si alguno no tiene permisos de lectura'
             Try
-                wFileName = proc.MainModule.FileName
+                procName = proc.ProcessName
             Catch ex As Exception
-                wFileName = ""
+                procName = ""
             End Try
         End If
-        Return wFileName.ToLower
+        Return procName.ToLower
+        '
     End Function
     'Obtiene el número de un proceso determinado'
     Public Function GetProcessID()

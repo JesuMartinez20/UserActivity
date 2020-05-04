@@ -6,17 +6,17 @@ Public Class FocusHook
     'Getter'
     Public Property FocusThread As Thread
         Get
-            Return _focusThread
+            Return Me._focusThread
         End Get
         Set(value As Thread)
-            _focusThread = value
+            Me._focusThread = value
         End Set
     End Property
     'Constructor'
     Public Sub New(ByVal focusThresHold As Integer)
-        _focusThread = New Threading.Thread(AddressOf GetFocusInfo)
-        _focusThread.Start()
-        _focusThresHold = focusThresHold
+        Me._focusThread = New Threading.Thread(AddressOf GetFocusInfo)
+        Me._focusThread.Start()
+        Me._focusThresHold = focusThresHold
     End Sub
     'Evento de foco'
     Public Event AppRise(ByVal appName As String)
@@ -30,7 +30,7 @@ Public Class FocusHook
             Else
                 RaiseEvent AppRise(newAppName)
             End If
-            System.Threading.Thread.Sleep(_focusThresHold)
+            System.Threading.Thread.Sleep(Me._focusThresHold)
         End While
     End Sub
 End Class

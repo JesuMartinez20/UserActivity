@@ -5,6 +5,8 @@
     Public userName As String = Environment.UserName
     'Se refiere a la ruta correspondiente del escritorio, task manager... etc'
     Public explorer As String = "explorer"
+    'Evitar almacenar la propia aplicación'
+    Public userActivity As String = "useractivity"
     'Notificaciones de entrada de ratón'
     Public Const WM_MOUSEWHEEL As Integer = &H20A
     'Notificaciones de entrada de teclado'

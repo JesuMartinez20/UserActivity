@@ -1,8 +1,8 @@
 ﻿Imports System.Text
 
-Public Class FicherosINI
+Public Class INIFiles
     Private strFilename As String
-    'Constructor para aceptar el fichero INI'
+    ' Constructor para aceptar el fichero INI'
     Public Sub New(ByVal Filename As String)
         strFilename = Filename
     End Sub

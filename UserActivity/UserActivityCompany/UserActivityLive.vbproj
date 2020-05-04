@@ -102,7 +102,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Presentation\FicherosINI.vb" />
+    <Compile Include="Presentation\INIFiles.vb" />
     <Compile Include="Presentation\Main.Designer.vb">
       <DependentUpon>Main.vb</DependentUpon>
     </Compile>
@@ -135,10 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon-track.ico" />
-    <Content Include="Resources\icon-search.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Ficheros\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>
