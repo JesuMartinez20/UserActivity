@@ -122,6 +122,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="UserActivityLive release\config.ini" />
+    <None Include="UserActivityLive release\UserActivityCompany.exe.config" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -134,6 +136,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="UserActivityLive release\UserActivityCompany.exe" />
     <Content Include="icon-track.ico" />
   </ItemGroup>
   <ItemGroup />

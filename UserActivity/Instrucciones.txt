@@ -1,8 +1,20 @@
-Esta carpeta contiene los ejecutables de la aplicación UserActivity elaborada por: Jesús Martínez Manrique.
-Existen dos carpetas:
-1. UserActivity final. Incluye la aplicación UserActivity definitiva. Primeramente, es necesario incorporar el fichero nombre del archivo en algún 
-entorno visual de diseño de base de datos, como MySQL Workbench, con el objetivo de comunicar la base de datos con la herramienta (modificar la sección "BD" 
-del archivo "config.ini" si el usuario ha modificado las credenciales de su base de datos). Acto seguido se procede a ejecutar el archivo
-"UserActivity.exe" y la herramienta se lanzará en segundo plano lista para recolectar información del usuario.
+Autor: Jesús Martínez Manrique
 
-2. UserActivity live. Incluye una versión más ligera de la aplicación UserActivity. CONTINUAR CUANDO ACABE LA OTRA
+Se puede ejecutar la versión definitiva ("UserActivity.exe") o la versión ligera ("UserActivityCompany.exe").
+Para ejecutar la herramienta UserActivity, es necesario seguir los pasos mencionados a continuación:
+
+*Dentro de la solución "UserActivity" existe la siguiente carpeta:
+	1. UserActivity release. Incluye la aplicación UserActivity definitiva. Primeramente, es necesario incorporar el fichero "eventos.sql" en algún 
+	entorno visual de diseño de base de datos, como MySQL Workbench, con el objetivo de comunicar la base de datos con la herramienta (modificar la sección "BD" 
+	del archivo "config.ini" si el usuario ha modificado las credenciales de su base de datos). Acto seguido se procede a ejecutar el archivo
+	"UserActivity.exe" y la herramienta se lanzará en segundo plano lista para recolectar información del usuario.
+
+*Dentro de la solución "UserActivityCompany" existe la siguiente carpeta:
+	2. UserActivityLive release. Incluye una versión más ligera de la aplicación UserActivity. Únicamente se debe ejecutar el archivo "UserActivityCompany.exe" y la herramienta
+	se lanzará en segundo plano. Una vez terminada la ejecución de la misma, dentro de la carpeta se encontrarán dos nuevos ficheros: el primero
+	("AccionesRegistradas.log") contiene todas las acciones realizadas por el usuario, mientras que el segundo ("CatalogoApps.txt") contiene el catálogo de las aplicaciones
+	usadas por el mismo.
+
+El archivo "config.ini" contiene las acciones que la herramienta es capaz de registrar.
+
+Se recomienda ejecutar la versión ligera para una mejor experiencia y facilidad en el uso de la herramienta.

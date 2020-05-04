@@ -171,6 +171,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="UserActivity release\config.ini" />
+    <None Include="UserActivity release\UserActivity.exe.config" />
     <None Include="My Project\app.manifest" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
@@ -197,6 +199,11 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="UserActivity release\BouncyCastle.Crypto.dll" />
+    <Content Include="UserActivity release\Google.Protobuf.dll" />
+    <Content Include="UserActivity release\MySql.Data.dll" />
+    <Content Include="UserActivity release\MySql.Data.xml" />
+    <Content Include="UserActivity release\UserActivity.exe" />
     <Content Include="icon-track.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
