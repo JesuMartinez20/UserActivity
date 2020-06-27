@@ -1,6 +1,6 @@
 ﻿Imports UserActivity
 
-Public Class Catalog_Actions
+Public Class CatalogActions
     Private _idAction As Integer
     Private _action As String
     Private _daoCatalog As DAOCatalog

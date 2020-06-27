@@ -152,7 +152,7 @@ Public Class Main
     Private Sub fHook_AppRise(ByVal appName As String) Handles fHook.AppRise
         Dim iniAppId As Integer
         Dim action As Action
-        Dim app As Catalog_Apps
+        Dim app As CatalogApps
         'Se compara la aplicación activa actualmente con la activa por última vez, si es diferente, se gestionará dependiendo de 3 casos'
         If currentAppName <> appName And appName <> explorer And appName <> userActivity Then
             If appsRegistered.Count = 0 Then 'Si el catálogo está vacío se inicializa guardando tanto la aplicación activa como su id correspondiente'
@@ -163,7 +163,7 @@ Public Class Main
                 action = SaveAction(iniAppId, appName)
                 InsertApp(action)
                 UpdateCurrentAction(appName, iniAppId)
-                lastAppId = iniAppId 'se actualiza el id de aplicación activa'
+                lastAppId = iniAppId 'se actualiza el id de la aplicación activa'
             ElseIf appsRegistered.ContainsKey(appName) Then 'Si la app ya está registrada, se recuperan su nombre y su id'
                 Dim actionIdRegistered As Integer = appsRegistered.Where(Function(p) p.Key = appName).FirstOrDefault.Value
                 action = SaveAction(actionIdRegistered, appName)
@@ -245,12 +245,13 @@ Public Class Main
 #Region "MÉTODOS CRUD PARA RECUPERAR LOS DATOS NECESARIOS EN CADA CASO"
     'Se lee el catalogo de apps de la BD y se vuelca la información en un diccionario para evitar consultas innecesarias a la misma'
     Private Sub ReadCatalogApps()
-        Dim ca As New Catalog_Apps
+        Dim ca As New CatalogApps
         Dim kvp As KeyValuePair(Of String, Integer)
+
         Try
             ca.ReadCatalogApps()
             'Si el catálogo de apps contiene elementos se ingresan en el diccionario de apps'
-            If ca.DaoCatalog.AppCatalog.Count <> 0 Then
+            If ca.DaoCatalog.AppCatalog.Count > 0 Then
                 For Each kvp In ca.DaoCatalog.AppCatalog
                     appsRegistered.Add(kvp.Key, kvp.Value)
                 Next
@@ -262,14 +263,14 @@ Public Class Main
         End Try
     End Sub
     'Recupera toda la información de una app activa'
-    Private Function SaveApp(appName As String, appId As Integer) As Catalog_Apps
-        Dim ca As New Catalog_Apps
+    Private Function SaveApp(appName As String, appId As Integer) As CatalogApps
+        Dim ca As New CatalogApps
         ca.IdApp = appId
         ca.App = appName
         Return ca
     End Function
     'Inserta una app en la tabla catalogo_apps de la bd'
-    Private Sub InsertAppCatalog(ca As Catalog_Apps)
+    Private Sub InsertAppCatalog(ca As CatalogApps)
         Try
             ca.InsertApp()
         Catch ex As Exception
@@ -288,9 +289,11 @@ Public Class Main
     End Sub
     'Comprueba el catálogo de acciones provenientes de la BD. Si existen acciones no se hace nada, en caso contrario, se insertan las acciones del fichero .ini en la BD'
     Private Sub CheckCatalogActions(arrayActions() As String)
-        Dim ca As New Catalog_Actions
+        Dim ca As New CatalogActions
+
         Try
             ca.ReadCatalogActions()
+
             If ca.DaoCatalog.ActionsList.Count = 0 Then
                 InsertActionCatalog(arrayActions, ca)
             End If
@@ -300,10 +303,11 @@ Public Class Main
         End Try
     End Sub
     'Inserta las acciones en la tabla catalogo_acciones de la bd'
-    Private Sub InsertActionCatalog(arrayActions() As String, ca As Catalog_Actions)
+    Private Sub InsertActionCatalog(arrayActions() As String, ca As CatalogActions)
         For i = 0 To arrayActions.Length - 1
             ca.IdAction = i + 1
             ca.Action = arrayActions(i)
+
             Try
                 ca.InsertAction()
             Catch ex As Exception

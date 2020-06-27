@@ -31,7 +31,7 @@ Public Class Main
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LaunchAppMinimized()
         ReadIni()
-        ReadActionsCatalog()
+        ReadCatalogActions()
         StartHooks()
         StartClipboard()
     End Sub
@@ -113,13 +113,13 @@ Public Class Main
 #End Region
 #Region "LECTURA DE FICHEROS"
     'Método encargado de leer, si existe, el catalogo de apps registradas hasta el momento'
-    Private Sub ReadActionsCatalog()
+    Private Sub ReadCatalogActions()
         Dim sLine As String = ""
         Dim sLineArray As String()
         Dim sr As StreamReader
 
-        If File.Exists(pathActionCatalog) Then
-            sr = New StreamReader(pathActionCatalog)
+        If File.Exists(pathCatalogActions) Then
+            sr = New StreamReader(pathCatalogActions)
             While Not sr.EndOfStream
                 sLine = sr.ReadLine()
                 If Not sLine Is Nothing Then
@@ -138,18 +138,18 @@ Public Class Main
     Private Sub ReadFilesPath(ByRef ini As INIFiles)
         Dim myPath As String = ini.GetString("FICHERO", "ActionLog")
         If myPath.Equals("pathExe") Then 'se establece la ruta por defecto'
-            pathActionLog = Application.StartupPath + "\AccionesRegistradas.log"
+            pathLogActions = Application.StartupPath + "\AccionesRegistradas.log"
         Else
-            pathActionLog = myPath
-            PathIsValid(pathActionLog)
+            pathLogActions = myPath
+            PathIsValid(pathLogActions)
         End If
 
         myPath = ini.GetString("FICHERO", "ActionCatalog")
         If myPath.Equals("pathExe") Then
-            pathActionCatalog = Application.StartupPath + "\CatalogoApps.txt"
+            pathCatalogActions = Application.StartupPath + "\CatalogoApps.txt"
         Else
-            pathActionCatalog = myPath
-            CatalogIsValid(pathActionCatalog)
+            pathCatalogActions = myPath
+            CatalogIsValid(pathCatalogActions)
         End If
     End Sub
 #End Region
@@ -182,14 +182,14 @@ Public Class Main
         Static lastAppName As String 'Controla la app activa'
 
         If appName <> lastAppName And appName <> explorer And appName <> userActivity Then
-            LogAction(actionId)
+            ActionLog(actionId)
             lastAppName = appName
         End If
     End Sub
 
     Private Sub kbHook_CombKey(ByVal actionId As Integer, ByVal appName As String) Handles kbHook.CombKey
         If actionId <> currentActionId And appName <> explorer And appName <> userActivity Then
-            LogAction(actionId)
+            ActionLog(actionId)
             currentActionId = actionId
         End If
     End Sub
@@ -198,7 +198,7 @@ Public Class Main
         Static lastAppName As String
 
         If appName <> lastAppName And appName <> explorer And appName <> userActivity Then
-            LogAction(actionId)
+            ActionLog(actionId)
             lastAppName = appName
         End If
     End Sub
@@ -209,20 +209,20 @@ Public Class Main
         If currentAppName <> appName And appName <> explorer And appName <> userActivity Then
             If appsRegistered.Count = 0 Then 'Si el catálogo está vacío se inicializa guardando tanto la aplicación activa como su id correspondiente'
                 iniAppId = arrayActions.Count + 1 'El id de inicio será el número de acciones registradas + 1'
-                LogAction(iniAppId)
+                ActionLog(iniAppId)
                 appsRegistered.Add(appName, iniAppId)
-                LogCatalog(appName, iniAppId)
+                CatalogLog(appName, iniAppId)
                 UpdateCurrentAction(appName, iniAppId)
                 lastAppId = iniAppId 'se actualiza el id de aplicación activa'
             ElseIf appsRegistered.ContainsKey(appName) Then 'Si la app ya está registrada, se recuperan su nombre y su id'
                 Dim actionIdRegistered As Integer = appsRegistered.Where(Function(p) p.Key = appName).FirstOrDefault.Value
-                LogAction(actionIdRegistered)
+                ActionLog(actionIdRegistered)
                 UpdateCurrentAction(appName, actionIdRegistered)
             Else 'Si la app no está registrada en el catálogo, se procede a registrar la misma'
                 lastAppId += 1 'la siguiente app a registrar será el última almacenada + 1'
-                LogAction(lastAppId)
+                ActionLog(lastAppId)
                 appsRegistered.Add(appName, lastAppId)
-                LogCatalog(appName, lastAppId)
+                CatalogLog(appName, lastAppId)
                 UpdateCurrentAction(appName, lastAppId)
             End If
         End If
@@ -254,6 +254,7 @@ Public Class Main
         Try
             Dim iData As New DataObject
             iData = Clipboard.GetDataObject
+
             If iData.ContainsText Then 'ANSI TEXT'
                 RaiseEvent ClipboardData(iData.GetData(DataFormats.Text, True).ToString())
             ElseIf iData.ContainsImage Then 'IMAGE FORMAT'
@@ -270,40 +271,40 @@ Public Class Main
         Dim actionId As Integer = SearchValue(actions, "Copy")
 
         If actionId <> currentActionId And originApp <> explorer And originApp <> userActivity Then
-            LogAction(actionId)
+            ActionLog(actionId)
             currentActionId = actionId
         End If
     End Sub
 
     Private Sub PasteAction(ByVal actionId As Integer, ByVal appName As String) Handles kbHook.PasteAction
         If appName <> explorer And appName <> userActivity Then
-            LogAction(actionId)
+            ActionLog(actionId)
             currentActionId = actionId
         End If
     End Sub
 #End Region
 #Region "ALMACENAMIENTO DE LAS ACCIONES Y APPS"
-    Private Sub LogAction(ByVal actionId As Integer)
+    Private Sub ActionLog(ByVal actionId As Integer)
         'Si el archivo ya está creado, se añade al contenido del mismo'
-        If File.Exists(pathActionLog) Then
-            Dim sw As New System.IO.StreamWriter(pathActionLog, True)
+        If File.Exists(pathLogActions) Then
+            Dim sw As New System.IO.StreamWriter(pathLogActions, True)
             sw.WriteLine(actionId.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
             sw.Close()
         Else 'en caso contrario se crean e insertan los valores correspondientes'
-            Dim sw As New System.IO.StreamWriter(pathActionLog)
+            Dim sw As New System.IO.StreamWriter(pathLogActions)
             sw.WriteLine(actionId.ToString + "#" + Now.ToString("yyyy-MM-dd HH:mm:ss") + "#" + userName)
             sw.Close()
         End If
     End Sub
 
-    Private Sub LogCatalog(ByVal appName As String, ByVal idApp As Integer)
+    Private Sub CatalogLog(ByVal appName As String, ByVal idApp As Integer)
         'Si el archivo ya está creado, se añade al contenido del mismo'
-        If File.Exists(pathActionCatalog) Then
-            Dim sw As New System.IO.StreamWriter(pathActionCatalog, True)
+        If File.Exists(pathCatalogActions) Then
+            Dim sw As New System.IO.StreamWriter(pathCatalogActions, True)
             sw.WriteLine(idApp.ToString + ":" + appName)
             sw.Close()
         Else 'en caso contrario se crean e insertan los valores correspondientes'
-            Dim sw As New System.IO.StreamWriter(pathActionCatalog)
+            Dim sw As New System.IO.StreamWriter(pathCatalogActions)
             sw.WriteLine(idApp.ToString + ":" + appName)
             sw.Close()
         End If

@@ -53,21 +53,21 @@ Public Class KeyboardHook
     Public Event PasteAction(ByVal action As Integer, ByVal focus As String)
     'Esta función se encarga de capturar los mensajes de teclado'
     Private Function KeyboardProc(nCode As Integer, wParam As IntPtr, lParam As IntPtr) As Integer
-        Dim actionId As Integer = 0
         Dim keyCode As Integer
-        Dim appName As String = ""
 
         If nCode = HookCodes.HC_ACTION Then
             Select Case wParam
                 Case WM_KEYDOWN, WM_SYSKEYDOWN
                     keyCode = CType(Marshal.PtrToStructure(lParam, Hookstruct.GetType()), KBDLLHOOKSTRUCT).vkCode
-                    GrapKeyboard(actionId, keyCode, appName)
+                    GrapKeyboard(keyCode)
             End Select
         End If
         Return CallNextHookEx(Me._HHookID, nCode, wParam, lParam)
     End Function
     'En este método se capturan las combinaciones de teclas más usadas'
-    Private Sub GrapKeyboard(ByRef actionId As Integer, keyCode As Integer, ByRef appName As String)
+    Private Sub GrapKeyboard(ByRef keyCode As Integer)
+        Dim actionId As Integer
+        Dim appName As String
         'En esta condición se capturan las combinaciones de teclas que no se quieren registrar'
         If GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_C Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_C _
             Or GetAsyncKeyState(VK_LCONTROL) And keyCode = VK_X Or GetAsyncKeyState(VK_RCONTROL) And keyCode = VK_X _

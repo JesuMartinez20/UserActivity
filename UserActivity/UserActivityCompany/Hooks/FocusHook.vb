@@ -25,9 +25,7 @@ Public Class FocusHook
         While True
             Dim newAppName As String = GetPathName()
             'Si no se consigue la aplicación activa no se hace nada'
-            If newAppName = Nothing Then
-                'do nothing'
-            Else
+            If newAppName <> Nothing Then
                 RaiseEvent AppRise(newAppName)
             End If
             System.Threading.Thread.Sleep(Me._focusThresHold)

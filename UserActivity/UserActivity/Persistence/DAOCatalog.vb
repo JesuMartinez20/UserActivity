@@ -28,7 +28,7 @@ Public Class DAOCatalog
         Me._appCatalog = New Dictionary(Of String, Integer)
     End Sub
 
-    Public Function InsertAction(ByVal ca As Catalog_Actions) As Integer
+    Public Function InsertAction(ByVal ca As CatalogActions) As Integer
         Return AgentBD.getAgent.Insert("INSERT INTO catalogo_acciones VALUES(" & ca.IdAction & ",'" & ca.Action & "');")
     End Function
 
@@ -43,7 +43,7 @@ Public Class DAOCatalog
         End Using
     End Sub
 
-    Public Function InsertApp(ByVal app As Catalog_Apps) As Integer
+    Public Function InsertApp(ByVal app As CatalogApps) As Integer
         Return AgentBD.getAgent.Insert("INSERT INTO catalogo_apps VALUES(" & app.IdApp & ",'" & app.App & "');")
     End Function
 

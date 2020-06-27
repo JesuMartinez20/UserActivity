@@ -18,7 +18,7 @@ Module CommonMethods
                 procName = ""
             End Try
         End If
-        Return procName.ToLower
+        Return procName.ToLower()
         '
     End Function
     'Obtiene el número de un proceso determinado'

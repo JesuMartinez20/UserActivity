@@ -1,0 +1,31 @@
+Autor: Jesús Martínez Manrique
+
+Este proyecto permite ejecutar la versión definitiva ("UserActivity.exe") y la versión ligera ("UserActivityCompany.exe").
+
+VERSIÓN DEFINITIVA:
+Para ejecutar la herramienta UserActivity, es necesario seguir los pasos mencionados a continuación:
+1. Incorporar el fichero "eventos.sql" (presente en la carpeta "Util" del proyecto raíz) en algún entorno de almacenamiento y manipulación de bases de datos, como MySQL Workbench, 
+   de lo contrario la herramienta no se iniciará. Opcionalmente se permite la creación de una nueva base de datos.
+
+2. Modificar la sección "BD" del archivo "config.ini" con las credenciales de la base de datos incorporada o creada en el paso anterior. Este archivo se encuentra presente en la
+   ruta "UserActivity/UserActivity release".
+
+3. Ejecutar el archivo .exe "UserActivity", de esta manera la herramienta se ejecutará en segundo plano (indicándose a través de un mensaje informativo) y procederá a registrar la 
+   actividad del usuario. Este archivo se encuentra presente en la ruta "UserActivity/UserActivity release".
+
+VERSIÓN LIGERA:
+Para ejecutar la herramienta UserActivityCompany, únicamente se debe ejecutar el archivo .exe "UserActivityCompany" y esta se ejecutará en segundo plano, registrando la
+actividad del usuario. Este archivo se encuentra presente en la ruta "UserActivityCompany/UserActivityLive release".
+Tras finalizar la ejecución de la herramienta, se observará la presencia de dos nuevos ficheros: el primero ("AccionesRegistradas.log") contiene todas las acciones 
+realizadas por el usuario, mientras que el segundo ("CatalogoApps.txt") contiene el catálogo de las aplicaciones usadas por el mismo.
+
+DATOS A TENER EN CUENTA:
+El archivo "config.ini" contiene las acciones que la herramienta es capaz de registrar.
+
+Se recomienda ejecutar la versión ligera si únicamente se pretende observar el funcionamiento general de la herramienta, pues no se requiere la instalación previa de otros programas.
+
+Para finalizar la ejecución de la herramienta solo debe dirigirse a la barra de tareas de Windows, hacer click con el botón derecho del ratón en la misma y
+seleccionar la opción "Salir".
+
+El Anexo A correspondiente a la documentación de este TFG, incluye un manual de usuario donde se explica más detalladamente los pasos a seguir para realizar una correcta instalación,
+tanto de la herramienta UserActivity como de la aplicación web. Esta útima se encargará de mostrar los resultados obtenidos del usuario analizado.

@@ -122,8 +122,8 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\Catalog_Actions.vb" />
-    <Compile Include="Domain\Catalog_Apps.vb" />
+    <Compile Include="Domain\CatalogActions.vb" />
+    <Compile Include="Domain\CatalogApps.vb" />
     <Compile Include="Domain\ActionPaste.vb" />
     <Compile Include="Domain\Action.vb" />
     <Compile Include="Hooks\FocusHook.vb" />

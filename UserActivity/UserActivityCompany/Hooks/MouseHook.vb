@@ -48,7 +48,7 @@ Public Class MouseHook
     Public Event MouseWheel(ByVal action As Integer, ByVal focus As String)
     'Esta función se encarga de levantar los eventos elegidos'
     Private Function MouseProc(nCode As Integer, wParam As IntPtr, lParam As IntPtr) As Integer
-        Dim appName As String = ""
+        Dim appName As String
         Dim actionId As Integer
 
         If nCode = HookCodes.HC_ACTION Then
